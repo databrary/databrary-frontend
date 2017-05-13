@@ -1,11 +1,13 @@
-import React, { PureComponent } from 'react';
-import Drawer from 'react-md/lib/Drawers';
-import Button from 'react-md/lib/Buttons/Button';
-import Toolbar from 'react-md/lib/Toolbars';
+import React, {PureComponent} from "react";
+import Drawer from "react-md/lib/Drawers";
+import Button from "react-md/lib/Buttons/Button";
+import Toolbar from "react-md/lib/Toolbars";
 
-import inboxListItems from './constants/inboxListItems';
-import MenuButton from 'react-md/lib/Menus/MenuButton';
-import ListItem from 'react-md/lib/Lists/ListItem';
+import inboxListItems from "./constants/inboxListItems";
+import MenuButton from "react-md/lib/Menus/MenuButton";
+import ListItem from "react-md/lib/Lists/ListItem";
+
+import LoginDialog from "./Dialog";
 
 const ToolbarMenu = (props) => (
     <MenuButton id="woop" buttonChildren="more_vert" icon {...props}>
@@ -46,13 +48,17 @@ export default class SimpleExample extends PureComponent {
         this.setState({ visible: !this.state.visible, position: 'right' });
     }
 
+
+// <LoginDialog />,
+// <ToolbarMenu key="menu" id="woop-menu" />
+// <Button key="account_circle" icon>account_circle</Button>,
     render() {
         const left = this.state.position === 'left';
         const close = <Button icon onClick={this._closeDrawer}>{left ? 'arrow_back' : 'close'}</Button>;
         const actions = [
             <Button key="search" icon>search</Button>,
             <Button key="favorite" icon>favorite</Button>,
-            <ToolbarMenu key="menu" id="woop-menu" />
+            <LoginDialog />,
         ];
         // All don't fit for mobile
         const nav = <Button key="nav" icon onClick={this._toggleLeft}>menu</Button>;
