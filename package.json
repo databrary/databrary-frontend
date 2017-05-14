@@ -4,11 +4,13 @@
   "private": true,
   "description": "An example usage of react-md and create-react-app.",
   "dependencies": {
+    "axios": "^0.16.1",
     "node-sass": "^4.5.2",
     "npm-run-all": "^4.0.2",
     "react": "^15.5.4",
     "react-addons-css-transition-group": "^15.5.2",
     "react-addons-transition-group": "^15.5.2",
+    "react-cookie": "^2.0.6",
     "react-dom": "^15.5.4",
     "react-md": "*",
     "react-redux": "^5.0.4",

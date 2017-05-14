@@ -4,6 +4,7 @@
 import React, {Component} from "react";
 import TextField from "react-md/lib/TextFields";
 import Button from "react-md/lib/Buttons/Button";
+import axios from "axios";
 
 class LoginForm extends Component {
     constructor(props) {
@@ -18,7 +19,6 @@ class LoginForm extends Component {
     }
 
     handleChange(value, event) {
-        let value = value;
         let id = event.target.id;
         console.log(event.target);
         this.setState(function () {
@@ -30,7 +30,25 @@ class LoginForm extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        console.log(this.state)
+        axios.post(
+            'http://localhost:3444/api/user/login',
+            {},
+            {
+                auth: {
+                    username: this.state.email,
+                    password: this.state.password
+                },
+                withCredentials: true
+            }
+        )
+            .then(function (response) {
+                console.log(response.data);
+                console.log(response.headers);
+            }).catch(
+            function (error) {
+                console.log(error)
+            }
+        );
     };
 
     render() {
