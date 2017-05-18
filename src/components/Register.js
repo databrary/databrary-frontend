@@ -1,6 +1,6 @@
 import React from "react";
 import {Step, StepButton, Stepper} from "material-ui/Stepper";
-import {RaisedButton} from "react-md/lib/Buttons";
+import {Button} from "react-md/lib/Buttons";
 import ExpandTransition from "material-ui/internal/ExpandTransition";
 import TextField from "react-md/lib/TextFields";
 
@@ -116,13 +116,15 @@ class HorizontalTransition extends React.Component {
             <div style={contentStyle}>
                 <div>{this.getStepContent(stepIndex)}</div>
                 <div style={{marginTop: 24, marginBottom: 12}}>
-                    <RaisedButton
+                    <Button
+                        raised
                         label="Back"
                         disabled={stepIndex === 0}
                         onClick={this.handlePrev}
                         style={{marginRight: 12}}
                     />
-                    <RaisedButton
+                    <Button
+                        raised
                         label={stepIndex === 4 ? 'Finish' : 'Next'}
                         primary
                         onClick={this.handleNext}

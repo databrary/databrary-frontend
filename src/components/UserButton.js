@@ -8,11 +8,6 @@ import LoggedInButton from "./LoggedInButton";
 
 
 class UserButton extends PureComponent {
-    constructor(props) {
-        super(props);
-
-    }
-
     render() {
         return (
             this.props.loggedIn ? <LoggedInButton className={this.props.className}/> :
@@ -23,7 +18,7 @@ class UserButton extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        loggedIn: state.loggedIn,
+        loggedIn: state.appReducer.flags.loggedIn,
     }
 };
 

@@ -5,13 +5,8 @@ import React, {PureComponent} from "react";
 import ListItem from "react-md/lib/Lists/ListItem";
 import MenuButton from "react-md/lib/Menus/MenuButton";
 import {connect} from "react-redux";
-import {setLoggedIn} from "./redux/actions";
-import {logOut} from "./api/loginout";
-// const styles = {
-//     display: 'flex',
-//     alignItems: 'center',
-//     flexWrap: 'wrap',
-// };
+import {setLoggedIn} from "../redux/actions";
+import {logOut} from "../api/loginout";
 
 class LoggedInButton extends PureComponent {
     constructor(props) {
@@ -21,7 +16,8 @@ class LoggedInButton extends PureComponent {
 
     _logOut() {
         logOut();
-        this.props.setLoggedIn(false)
+        this.props.setLoggedIn(false);
+        console.log("logged in")
     }
 
     render() {

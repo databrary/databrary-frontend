@@ -7,8 +7,8 @@ import TextField from "react-md/lib/TextFields";
 import {Button} from "react-md/lib/Buttons";
 import SelectionControl from "react-md/lib/SelectionControls/SelectionControl";
 import {connect} from "react-redux";
-import {setLoggedIn, setRememberMe} from "./redux/actions";
-import {logIn} from "./api/loginout";
+import {setLoggedIn, setRememberMe} from "../redux/actions";
+import {logIn} from "../api/loginout";
 export default class LoginButton extends PureComponent {
     constructor(props) {
         super(props);
@@ -76,6 +76,7 @@ class LoginForm extends Component {
             function (loggedIn) {
                 if (loggedIn) {
                     this.props.setLoggedIn(true);
+                    console.log("logged in");
                     this.props.onLogIn();
                 } else {
                     this.props.setLoggedIn(false)
