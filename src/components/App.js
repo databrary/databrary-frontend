@@ -1,15 +1,16 @@
 import Button from "react-md/lib/Buttons/Button";
 import UserButton from "./UserButton";
-import Register from "./Register";
 import React, {Component} from "react";
 import {NavigationDrawer} from "react-md/lib/NavigationDrawers";
 import NavLink from "./NavLink";
-import Profile from "./Profile";
 import {connect} from "react-redux";
 import {Link as RouterLink, Route, Switch} from "react-router-dom";
 import {withRouter} from "react-router";
 import the404Page from "./the404Page";
 import Home from "./Home";
+import {setLoggedIn} from "../redux/actions";
+import {loggedIn} from "../api/loginout";
+
 const navItems = [{
     exact: true,
     label: 'Home',
@@ -25,8 +26,25 @@ const navItems = [{
 }];
 
 class App extends Component {
+    async componentDidMount() {
+        const {default: Register} = await import('./Register');
+        const {default: Profile} = await import('./Profile');
+        this.setState({
+            lazyRegister: <Register/>, lazyProfile: <Profile/>,
+        });
+
+    }
+
     constructor(props) {
         super(props);
+        this.state = {
+            lazyRegister: null,
+            lazyProfile: null,
+        };
+        loggedIn().then(
+            function (response) {
+                this.props.setLoggedIn(response);
+            }.bind(this))
     }
 
     render() {
@@ -51,7 +69,6 @@ class App extends Component {
                                 tabletDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
                                 desktopDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
                                 drawerTitle="Databrary"
-                                // drawerHeader={<CloseButton/>}
                                 toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton]}
                                 toolbarTitle="Databrary"
                                 toolbarThemeType="themed"
@@ -64,9 +81,11 @@ class App extends Component {
                                     <Route exact path="/" location={location} component={Home}/>
                                     <Route exact path="/home" location={location} component={Home}/>
                                     {this.props.loggedIn ? null :
-                                        <Route path="/user/register" location={location} component={Register}/>}
+                                        <Route exact path="/user/register" location={location}
+                                               render={() => this.state.lazyRegister || <h2>Loading...</h2>}/>}
                                     {this.props.loggedIn ?
-                                        <Route path="/profile" location={location} component={Profile}/> : null}
+                                        <Route exact path="/profile" location={location}
+                                               render={() => this.state.lazyProfile || <h2>Loading...</h2>}/> : null}
                                     <Route path='*' component={the404Page}/>
                                 </Switch>
                             </NavigationDrawer>
@@ -84,5 +103,11 @@ const mapStateToProps = (state) => {
     }
 };
 
-const connectedApp = connect(mapStateToProps)(App);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn))
+    }
+};
+
+const connectedApp = connect(mapStateToProps, mapDispatchToProps)(App);
 export default withRouter(connectedApp)

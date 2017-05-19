@@ -15,9 +15,11 @@ class LoggedInButton extends PureComponent {
     }
 
     _logOut() {
-        logOut();
-        this.props.setLoggedIn(false);
-        console.log("logged in")
+        logOut().then(function () {
+                this.props.setLoggedIn(false);
+                console.log("logged out");
+            }
+        )
     }
 
     render() {
@@ -30,7 +32,6 @@ class LoggedInButton extends PureComponent {
                 <ListItem onClick={this.open} primaryText="My Account"/>
                 <ListItem onClick={this._logOut} primaryText="Logout"/>
             </MenuButton>
-
         );
     }
 }

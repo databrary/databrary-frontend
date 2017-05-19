@@ -5,6 +5,7 @@
   "description": "An example usage of react-md and create-react-app.",
   "dependencies": {
     "axios": "^0.16.1",
+    "classnames": "^2.2.5",
     "history": "^4.6.1",
     "material-ui": "^0.18.1",
     "node-sass": "^4.5.2",
@@ -18,6 +19,7 @@
     "react-router-dom": "^4.1.1",
     "react-router-redux": "^4.0.8",
     "react-tap-event-plugin": "^2.0.1",
+    "react-waypoint": "^7.0.3",
     "redux": "^3.6.0",
     "redux-form": "^6.7.0",
     "universal-cookie": "^2.0.7",
@@ -25,7 +27,7 @@
   },
   "devDependencies": {
     "eslint-plugin-react": "^7.0.0",
-    "react-scripts": "0.9.5"
+    "react-scripts": "1.0.0"
   },
   "scripts": {
     "build-css": "node-sass src/scss -o src/scss",

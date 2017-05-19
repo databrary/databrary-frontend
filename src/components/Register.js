@@ -4,9 +4,6 @@ import {Button} from "react-md/lib/Buttons";
 import ExpandTransition from "material-ui/internal/ExpandTransition";
 import TextField from "react-md/lib/TextFields";
 
-/**
- * A contrived example using a transition between steps
- */
 class HorizontalTransition extends React.Component {
 
     state = {
@@ -47,9 +44,35 @@ class HorizontalTransition extends React.Component {
             case 0:
                 return (
                     <p>
-                        Select campaign settings. Campaign settings can include your budget, network, bidding
-                        options and adjustments, location targeting, campaign end date, and other settings that
-                        affect an entire campaign.
+                        <div className="md-grid">
+                            <TextField
+                                id="first-name"
+                                label="First name"
+                                placeholder="Bob"
+                                customSize="title"
+                                size={10}
+                                className="md-cell md-cell--bottom"
+                            />
+                            <TextField
+                                id="last-name"
+                                label="Last name"
+                                placeholder="Max"
+                                customSize="title"
+                                size={10}
+                                className="md-cell md-cell--bottom"
+                            />
+                        </div>
+                        <div className="md-grid">
+                            <TextField
+                                id="first-name"
+                                label="Email"
+                                placeholder="bob@max.com"
+                                customSize="title"
+                                size={10}
+                                className="md-cell md-cell--bottom"
+                            />
+
+                        </div>
                     </p>
                 );
             case 1:
@@ -99,7 +122,6 @@ class HorizontalTransition extends React.Component {
                 <div style={contentStyle}>
                     <p>
                         <a
-                            href="#"
                             onClick={(event) => {
                                 event.preventDefault();
                                 this.setState({stepIndex: 0, finished: false});

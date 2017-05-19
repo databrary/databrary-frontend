@@ -1,12 +1,13 @@
 /**
  * Created by maksim on 5/15/17.
  */
-import Cookies from "universal-cookie";
+// import Cookies from "universal-cookie";
+import config from "../config";
 import axios from "axios";
-const cookies = new Cookies();
+// const cookies = new Cookies();
 function logIn(email, password) {
     return axios.post(
-        'http://localhost:3444/api/user/login',
+        `${config.domain}/api/user/login`,
         {},
         {
             auth: {
@@ -17,19 +18,53 @@ function logIn(email, password) {
         }
     ).then(
         function (response) {
-            return true;
-            // return (response.data.status === 'ok' || response.data.payload === "already logged in")
+            // return true;
+            return (response.data.status === 'ok')
         }
     ).catch(
-        function () {
-            return true;
+        function (error) {
+            console.log(error);
         }
     );
     // return true;
 }
 
 function logOut() {
-    cookies.remove("databrary.session.token")
+    return axios.post(
+        `${config.domain}/api/user/logout`,
+        {},
+        {
+            withCredentials: true
+        }
+    ).then(
+        function (response) {
+            // return true;
+            return (response.data.status === 'ok')
+        }
+    ).catch(
+        function (error) {
+            console.log(error);
+        }
+    );
 }
 
-export {logIn, logOut}
+function loggedIn() {
+    return axios.get(
+        `${config.domain}/api/loggedin`,
+        {
+            withCredentials: true
+        }
+    ).then(
+        function (response) {
+            return (response.data.status === 'ok' && response.data.payload["logged_in"] === true)
+        }
+    ).catch(
+        function (error) {
+            console.log(error);
+            return false;
+        }
+    );
+    // return true;
+}
+
+export {logIn, logOut, loggedIn}
