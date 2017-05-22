@@ -7,18 +7,20 @@ import MenuButton from "react-md/lib/Menus/MenuButton";
 import {connect} from "react-redux";
 import {setLoggedIn} from "../redux/actions";
 import {logOut} from "../api/loginout";
+import {withRouter} from "react-router";
+//
 
 class LoggedInButton extends PureComponent {
     constructor(props) {
         super(props);
-        this._logOut = this._logOut.bind(this);
+        this.logOut = this.logOut.bind(this);
     }
 
-    _logOut() {
+    logOut() {
         logOut().then(function () {
+                this.props.history.push("/");
                 this.props.setLoggedIn(false);
-                console.log("logged out");
-            }
+            }.bind(this)
         )
     }
 
@@ -30,7 +32,7 @@ class LoggedInButton extends PureComponent {
                 buttonChildren="account_circle"
             >
                 <ListItem onClick={this.open} primaryText="My Account"/>
-                <ListItem onClick={this._logOut} primaryText="Logout"/>
+                <ListItem onClick={this.logOut} primaryText="Logout"/>
             </MenuButton>
         );
     }
@@ -46,7 +48,7 @@ const mapDispatchToProps = (dispatch) => {
     }
 };
 
-export default LoggedInButton = connect(
+export default LoggedInButton = withRouter(connect(
     mapStateToProps,
     mapDispatchToProps
-)(LoggedInButton);
+)(LoggedInButton));
