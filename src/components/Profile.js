@@ -35,20 +35,20 @@ class Profile extends Component {
                     if (response.data.status === "ok") {
                         this.setState({...JSON.parse(response.data.payload)});
                     } else {
-                        console.log(response.data.status);
-                        console.log(response.data.payload);
+                        console.log(response.data.status); //TODO
+                        console.log(response.data.payload); //TODO
                     }
                 }.bind(this)
             ).catch(
                 function (error) {
-                    console.log(error)
+                    console.log(error) //TODO
                 }
             );
         }
     }
 
     render() {
-        console.log(this.state);
+
         return (
             <Card style={{maxWidth: 600}} className="md-block-centered">
                 <Media>

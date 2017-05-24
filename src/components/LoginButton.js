@@ -76,7 +76,7 @@ class LoginForm extends Component {
             function (loggedIn) {
                 if (loggedIn) {
                     this.props.setLoggedIn(true);
-                    console.log("logged in");
+
                     this.props.onLogIn();
                 } else {
                     this.props.setLoggedIn(false)
@@ -84,7 +84,7 @@ class LoginForm extends Component {
             }.bind(this)
         ).catch(
             function (error) {
-                console.log(error);
+                console.log(error); //TODO
             })
 
     };

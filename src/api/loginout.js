@@ -23,7 +23,7 @@ function logIn(email, password) {
         }
     ).catch(
         function (error) {
-            console.log(error);
+            console.log(error); //TODO
         }
     );
     // return true;
@@ -43,7 +43,7 @@ function logOut() {
         }
     ).catch(
         function (error) {
-            console.log(error);
+            console.log(error); //TODO
         }
     );
 }
@@ -60,7 +60,7 @@ function loggedIn() {
         }
     ).catch(
         function (error) {
-            console.log(error);
+            console.log(error); //TODO
             return false;
         }
     );
