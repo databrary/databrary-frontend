@@ -1,10 +1,8 @@
 /**
  * Created by maksim on 5/15/17.
  */
-// import Cookies from "universal-cookie";
 import config from "../config";
 import axios from "axios";
-// const cookies = new Cookies();
 function logIn(email, password) {
     return axios.post(
         `${config.domain}/api/user/login`,
@@ -18,15 +16,17 @@ function logIn(email, password) {
         }
     ).then(
         function (response) {
-            // return true;
-            return (response.data.status === 'ok')
+            return response.data
         }
     ).catch(
         function (error) {
-            console.log(error); //TODO
+            return {
+                status: "error",
+                code: error.response.status,
+                errorUuid: error.response.data.data
+            }
         }
     );
-    // return true;
 }
 
 function logOut() {
@@ -38,12 +38,15 @@ function logOut() {
         }
     ).then(
         function (response) {
-            // return true;
-            return (response.data.status === 'ok')
+            return response.data
         }
     ).catch(
         function (error) {
-            console.log(error); //TODO
+            return {
+                status: "error",
+                code: error.response.status,
+                errorUuid: error.response.data.data
+            }
         }
     );
 }
@@ -56,15 +59,24 @@ function loggedIn() {
         }
     ).then(
         function (response) {
-            return (response.data.status === 'ok' && response.data.payload["logged_in"] === true)
+            return response.data
         }
     ).catch(
         function (error) {
-            console.log(error); //TODO
-            return false;
+            if (error.response.status === 401 || error.response.status === 403) {
+                return {
+                    status: "ok",
+                    loggedIn: false
+                }
+            } else {
+                return {
+                    status: "error",
+                    code: error.response.status,
+                    errorUuid: error.response.data.data
+                }
+            }
         }
     );
-    // return true;
 }
 
 export {logIn, logOut, loggedIn}

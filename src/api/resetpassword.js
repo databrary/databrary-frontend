@@ -6,19 +6,20 @@ import axios from "axios";
 function resetPasswordEmail(email) {
     return axios.post(
         `${config.domain}/api/user/reset-password/email`,
-
         {"email": email}
     ).then(
         function (response) {
-            // return true;
-            return (response.data.status === 'ok')
+            return response.data
         }
     ).catch(
         function (error) {
-            console.log(error); //TODO
+            return {
+                status: "error",
+                code: error.response.status,
+                errorUuid: error.response.data.data
+            }
         }
     );
-    // return true;
 }
 
 function resetPasswordToken(token, password) {
@@ -27,6 +28,18 @@ function resetPasswordToken(token, password) {
         {
             "token": token,
             "password": password,
+        }
+    ).then(
+        function (response) {
+            return response.data
+        }
+    ).catch(
+        function (error) {
+            return {
+                status: "error",
+                code: error.response.status,
+                errorUuid: error.response.data.data
+            }
         }
     )
 }

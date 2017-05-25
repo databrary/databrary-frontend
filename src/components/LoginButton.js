@@ -74,18 +74,14 @@ class LoginForm extends Component {
 
         logIn(this.state.email, this.state.password).then(
             function (loggedIn) {
-                if (loggedIn) {
+                if (loggedIn === true) {
                     this.props.setLoggedIn(true);
-
                     this.props.onLogIn();
                 } else {
                     this.props.setLoggedIn(false)
                 }
             }.bind(this)
-        ).catch(
-            function (error) {
-                console.log(error); //TODO
-            })
+        )
 
     };
 

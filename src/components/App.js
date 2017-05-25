@@ -8,7 +8,7 @@ import {Link as RouterLink, Route, Switch} from "react-router-dom";
 import {withRouter} from "react-router";
 import the404Page from "./the404Page";
 import Home from "./Home";
-import {setLoggedIn} from "../redux/actions";
+import {addSnackToast, setLoggedIn} from "../redux/actions";
 import {loggedIn} from "../api/loginout";
 import ResetPassword from "./ResetPassword";
 
@@ -33,7 +33,6 @@ class App extends Component {
         this.setState({
             lazyRegister: <Register/>, lazyProfile: <Profile/>,
         });
-
     }
 
     constructor(props) {
@@ -44,7 +43,19 @@ class App extends Component {
         };
         loggedIn().then(
             function (response) {
-                this.props.setLoggedIn(response);
+                if (response.status === "ok") {
+                    this.props.setLoggedIn(response.loggedIn);
+                } else {
+                    this.props.addToast({
+                        text: "Couldn't check logged in status",
+                        action: {
+                            label: 'Report',
+                            onClick: () => {
+                                reportError("failed to verify log in status", response.errorUuid)
+                            },
+                        },
+                    })
+                }
             }.bind(this))
     }
 
@@ -60,6 +71,15 @@ class App extends Component {
             />
         );
         const userButton = <UserButton/>;
+        const testSnackButton = <Button raised label="Toast Hello, World" onClick={() => this.props.addToast({
+            text: 'Connection timed out. Showing limited messages.',
+            toastAction: {
+                label: 'Retry',
+                onClick: () => {
+                    alert('You tried again for some reason..'); // eslint-disable-line no-alert
+                },
+            },
+        })}/>;
         return (
             <Switch>
                 <Route exact path="/reset-password" component={ResetPassword}/>
@@ -72,7 +92,7 @@ class App extends Component {
                                     tabletDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
                                     desktopDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
                                     drawerTitle="Databrary"
-                                    toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton]}
+                                    toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton, testSnackButton]}
                                     toolbarTitle="Databrary"
                                     toolbarThemeType="themed"
                                     navItems={
@@ -111,7 +131,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn))
+        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn)),
+        addToast: (toast) => dispatch(addSnackToast(toast))
     }
 };
 

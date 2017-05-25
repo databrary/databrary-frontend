@@ -8,6 +8,7 @@ import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import WebFontLoader from "webfontloader";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
 import {history, store} from "./redux/store";
+import AlertSnackBar from "./components/AlertSnackBar";
 
 WebFontLoader.load({
     google: {
@@ -25,7 +26,10 @@ ReactDOM.render(
     <Provider store={store}>
         <BrowserRouter history={history}>
             <MuiThemeProvider muiTheme={muiTheme}>
-                <App />
+                <div>
+                    <App />
+                    <AlertSnackBar/>
+                </div>
             </MuiThemeProvider>
         </BrowserRouter>
     </Provider>,

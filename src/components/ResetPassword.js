@@ -10,7 +10,8 @@ import {resetPasswordEmail, resetPasswordToken} from "../api/resetpassword";
 import {Button} from "react-md/lib/Buttons";
 import queryString from "query-string";
 import {withRouter} from "react-router";
-
+import {connect} from "react-redux";
+import {addSnackToast} from "../redux/actions";
 class ResetPassword extends React.Component {
 
     constructor(props) {
@@ -48,38 +49,55 @@ class ResetPassword extends React.Component {
 
     handleSubmitRequest(event) {
         event.preventDefault();
-        resetPasswordEmail(this.state.email);
-        this.setState(function () {
-            let state = {};
-            state["sent"] = true;
-            return state
-        });
+        resetPasswordEmail(this.state.email).then(
+            function (response) {
+                if (response.status === "ok") {
+                    this.setState(function () {
+                        let state = {};
+                        state["sent"] = true;
+                        return state
+                    });
+                } else {
+                    this.props.addToast({
+                        text: "Couldn't submit password email",
+                        action: {
+                            label: 'Report',
+                            onClick: () => {
+                                reportError("failed to submit password email", response.errorUuid)
+                            },
+                        },
+                    })
+                }
+            }.bind(this))
     };
 
     handleSubmitReset(event) {
         event.preventDefault();
         if (this.state.password === this.state.confirmPassword) {
-            resetPasswordToken(this.state.token, this.state.password).then(function (response) {
-                if (response.data.status === 'ok') {
-                    this.setState(function () {
-                        return {
-                            stage: "token",
-                            success: true,
-                        }
-                    })
-                }
-            }.bind(this)).catch(function (error) {
-                console.log(error) //TODO
-            })
+            resetPasswordToken(this.state.token, this.state.password).then(
+                function (response) {
+                    if (response.status === "ok") {
+                        this.setState(function () {
+                            return {
+                                stage: "token",
+                                success: true,
+                            }
+                        })
+                    } else {
+                        this.props.addToast({
+                            text: "Couldn't change password",
+                            action: {
+                                label: 'Report',
+                                onClick: () => {
+                                    reportError("failed to submit token", response.errorUuid)
+                                },
+                            },
+                        })
+                    }
+                }.bind(this))
         } else {
             console.log("pws don't match") //TODO
         }
-        // resetPasswordEmail(this.state.email);
-        // this.setState(function () {
-        //     let state = {};
-        //     state["sent"] = true;
-        //     return state
-        // });
     };
 
     render() {
@@ -93,8 +111,6 @@ class ResetPassword extends React.Component {
                 <TextField
                     id="email"
                     label="Email"
-                    // defaultValue="Vintage 50's Dress"
-                    // customSize="title"
                     className="md-cell md-cell--12"
                     onChange={this.handleFieldChange}
                     required
@@ -175,4 +191,11 @@ class ResetPassword extends React.Component {
 
 }
 
-export default withRouter(ResetPassword);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addToast: (toast) => dispatch(addSnackToast(toast))
+    }
+};
+
+const connectedResetPassword = connect(null, mapDispatchToProps)(ResetPassword);
+export default withRouter(connectedResetPassword)

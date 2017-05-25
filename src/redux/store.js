@@ -21,20 +21,5 @@ const store = createStore(
 // Create an enhanced history that syncs navigation events with the store
 const history = syncHistoryWithStore(createBrowserHistory(), store);
 
-
-// import { createStore, combineReducers } from 'redux'
-// import reducers from "./reducers";
-// import { browserHistory } from 'react-router'
-// import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-//
-// // Add the reducer to your store on the `routing` key
-// const store = createStore(
-//     combineReducers({
-//         ...reducers,
-//         routing: routerReducer
-//     })
-// );
-// const history = syncHistoryWithStore(browserHistory, store);
-
 export {store, history}
 
