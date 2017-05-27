@@ -43,7 +43,7 @@ export default [{
 }, {
     label: 'Profile',
     primaryText: 'Profile',
-    to: '/profile',
+    to: '/getProfile',
     icon: <FontIcon>bookmark</FontIcon>,
 }]
 // }, {

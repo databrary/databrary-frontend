@@ -21,7 +21,7 @@ const navItems = [{
 }, {
     exact: true,
     label: 'Profile',
-    to: '/profile',
+    to: '/getProfile',
     icon: 'account_circle',
     loggedIn: true,
 }];
@@ -45,9 +45,9 @@ class App extends Component {
             function (response) {
                 if (response.status === "ok") {
                     this.props.setLoggedIn(response.loggedIn);
-                } else {
+                } else if (response.status === "error") {
                     this.props.addToast({
-                        text: "Couldn't check logged in status",
+                        text: `Error ${response.code}: Couldn't check logged in status. Please clear your cookies.`,
                         action: {
                             label: 'Report',
                             onClick: () => {
@@ -55,8 +55,22 @@ class App extends Component {
                             },
                         },
                     })
+                } else {
+                    throw `Unexpected response loggedIn in ${this.__proto__.constructor.name}`
                 }
             }.bind(this))
+    }
+
+    _toastHello() {
+        this.props.addToast({
+            text: 'Connection timed out. Showing limited messages.',
+            toastAction: {
+                label: 'Retry',
+                onClick: () => {
+                    alert('You tried again for some reason..'); // eslint-disable-line no-alert
+                },
+            },
+        });
     }
 
     render() {
@@ -71,15 +85,7 @@ class App extends Component {
             />
         );
         const userButton = <UserButton/>;
-        const testSnackButton = <Button raised label="Toast Hello, World" onClick={() => this.props.addToast({
-            text: 'Connection timed out. Showing limited messages.',
-            toastAction: {
-                label: 'Retry',
-                onClick: () => {
-                    alert('You tried again for some reason..'); // eslint-disable-line no-alert
-                },
-            },
-        })}/>;
+        const testSnackbar = <Button raised label="Toast Hello, World" onClick={this._toastHello.bind(this)}/>;
         return (
             <Switch>
                 <Route exact path="/reset-password" component={ResetPassword}/>
@@ -92,7 +98,7 @@ class App extends Component {
                                     tabletDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
                                     desktopDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
                                     drawerTitle="Databrary"
-                                    toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton, testSnackButton]}
+                                    toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton, testSnackbar]}
                                     toolbarTitle="Databrary"
                                     toolbarThemeType="themed"
                                     navItems={

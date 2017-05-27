@@ -12,7 +12,7 @@ import Avatar from "react-md/lib/Avatars";
 import Button from "react-md/lib/Buttons";
 import {connect} from "react-redux";
 import config from "../config";
-import axios from "axios";
+import {getProfile} from "../api/profile";
 
 class Profile extends Component {
     constructor(props) {
@@ -25,25 +25,25 @@ class Profile extends Component {
 
     componentDidMount() {
         if (this.props.loggedIn) {
-            axios.get(
-                `${config.domain}/profile`,
-                {
-                    withCredentials: true
-                }
-            ).then(
+            getProfile().then(
                 function (response) {
-                    if (response.data.status === "ok") {
-                        this.setState({...JSON.parse(response.data.payload)});
+                    if (response.status === "ok") {
+                        this.setState(response.data);
+                    } else if (response.status === "error") {
+                        this.props.addToast({
+                            text: `Error ${response.code}: Couldn't get profile. Please try again.`,
+                            toastAction: {
+                                label: 'Report',
+                                onClick: () => {
+                                    reportError("failed to get getProfile", response.errorUuid)
+                                },
+                            },
+                        })
                     } else {
-                        console.log(response.data.status); //TODO
-                        console.log(response.data.payload); //TODO
+                        throw `Unexpected response profile in ${this.__proto__.constructor.name}`
                     }
                 }.bind(this)
-            ).catch(
-                function (error) {
-                    console.log(error) //TODO
-                }
-            );
+            )
         }
     }
 

@@ -9,7 +9,8 @@ import SelectionControl from "react-md/lib/SelectionControls/SelectionControl";
 import {connect} from "react-redux";
 import {setLoggedIn, setRememberMe} from "../redux/actions";
 import {logIn} from "../api/loginout";
-export default class LoginButton extends PureComponent {
+
+export default class LoginButton extends Component {
     constructor(props) {
         super(props);
 
@@ -42,7 +43,6 @@ class LoginDialog extends PureComponent {
         return (
             <Dialog dialogStyle={{width: "auto"}} id="LoginDialog" visible={visible} onHide={onHide}>
                 <LoginForm onLogIn={onHide}/>
-                {/*<TestLoginForm />*/}
             </Dialog>
         )
     }
@@ -73,16 +73,25 @@ class LoginForm extends Component {
         event.preventDefault();
 
         logIn(this.state.email, this.state.password).then(
-            function (loggedIn) {
-                if (loggedIn === true) {
+            function (response) {
+                if (response.status === "ok") {
                     this.props.setLoggedIn(true);
                     this.props.onLogIn();
+                } else if (response.status === "error") {
+                    this.props.setLoggedIn(false);
+                    this.props.addToast({
+                        text: `Error ${response.code}: Couldn't login. Please try again.`,
+                        toastAction: {
+                            label: 'Report',
+                            onClick: () => {
+                                reportError("failed to login", response.errorUuid)
+                            },
+                        },
+                    })
                 } else {
-                    this.props.setLoggedIn(false)
+                    throw `Unexpected response logIn in ${this.__proto__.constructor.name}`
                 }
-            }.bind(this)
-        )
-
+            }.bind(this));
     };
 
     render() {

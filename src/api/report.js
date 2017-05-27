@@ -14,9 +14,5 @@ function reportError(msg, uuid) {
         {
             withCredentials: true
         }
-    ).catch(
-        function (error) {
-            console.log(error);
-        }
-    );
+    )
 }

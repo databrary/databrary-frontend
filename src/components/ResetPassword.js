@@ -12,6 +12,101 @@ import queryString from "query-string";
 import {withRouter} from "react-router";
 import {connect} from "react-redux";
 import {addSnackToast} from "../redux/actions";
+import {Field, reduxForm} from "redux-form";
+
+class passwordField extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            error: props.meta.dirty && Boolean(this.props.meta.error)
+        }
+    }
+
+    render() {
+        return (
+            <TextField
+                label={this.props.label}
+                className="md-cell md-cell--12"
+                type="password"
+                onChange={this.props.input.onChange}
+                errorText={this.props.meta.error}
+                helpText={this.props.meta.warning}
+                error={this.props.meta.dirty && Boolean(this.props.meta.error)}
+                required
+            />
+        );
+    }
+}
+
+const validate = values => {
+    const errors = {};
+    if (!values.password) {
+        errors.password = 'Required'
+    } else if (values.password !== values.confirmPassword) {
+        errors.password = "Passwords don't match"
+    }
+
+    if (!values.confirmPassword) {
+        errors.confirmPassword = 'Required'
+    } else if (values.password !== values.confirmPassword) {
+        errors.confirmPassword = "Passwords don't match"
+    }
+    // if (!values.email) {
+    //     errors.email = 'Required'
+    // } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    //     errors.email = 'Invalid email address'
+    // }
+    if (!values.age) {
+        errors.age = 'Required'
+    } else if (isNaN(Number(values.age))) {
+        errors.age = 'Must be a number'
+    } else if (Number(values.age) < 18) {
+        errors.age = 'Sorry, you must be at least 18 years old'
+    }
+    return errors
+};
+
+const warn = values => {
+
+
+    const warnings = {};
+    if (values.age < 19) {
+        warnings.age = 'Hmm, you seem a bit young...'
+    }
+    return warnings
+};
+
+class PasswordForm extends React.Component {
+    render(props) {
+        const {valid, pristine, handleSubmit, submitting} = this.props;
+
+        return (
+
+            <form onSubmit={handleSubmit}>
+                <Field name="password" type="password" component={passwordField} label="Password"/>
+                <Field name="confirmPassword" type="password" component={passwordField} label="Confirm Password"/>
+                <footer
+                    className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
+                    style={{alignItems: 'center', margin: 0}}
+                >
+                    <Button disabled={!valid || pristine || submitting} className="md-cell md-cell--12" type="submit"
+                            raised label="Reset Password"
+                            onClick={handleSubmit}/>
+                </footer>
+            </form>
+        )
+    }
+}
+const ConnectedPasswordForm = reduxForm({
+    form: 'passwordForm', // a unique identifier for this form
+    validate, // <--- validation function given to redux-form
+    warn // <--- warning function given to redux-form
+})(PasswordForm);
+
+
+
+
+
 class ResetPassword extends React.Component {
 
     constructor(props) {
@@ -34,6 +129,7 @@ class ResetPassword extends React.Component {
         }
 
         this.handleFieldChange = this.handleFieldChange.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.handleSubmitRequest = this.handleSubmitRequest.bind(this);
         this.handleSubmitReset = this.handleSubmitReset.bind(this);
     }
@@ -47,6 +143,15 @@ class ResetPassword extends React.Component {
         });
     }
 
+    handleChange(value) {
+        if (value) {
+            this.setState(function () {
+                return Object.assign(this.state, value)
+            });
+        }
+    }
+
+//
     handleSubmitRequest(event) {
         event.preventDefault();
         resetPasswordEmail(this.state.email).then(
@@ -57,7 +162,7 @@ class ResetPassword extends React.Component {
                         state["sent"] = true;
                         return state
                     });
-                } else {
+                } else if (response.status === "error") {
                     this.props.addToast({
                         text: "Couldn't submit password email",
                         action: {
@@ -67,6 +172,8 @@ class ResetPassword extends React.Component {
                             },
                         },
                     })
+                } else {
+                    throw `Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`
                 }
             }.bind(this))
     };
@@ -77,13 +184,11 @@ class ResetPassword extends React.Component {
             resetPasswordToken(this.state.token, this.state.password).then(
                 function (response) {
                     if (response.status === "ok") {
-                        this.setState(function () {
-                            return {
-                                stage: "token",
-                                success: true,
-                            }
+                        this.setState({
+                            stage: "token",
+                            success: true,
                         })
-                    } else {
+                    } else if (response.status === "error") {
                         this.props.addToast({
                             text: "Couldn't change password",
                             action: {
@@ -93,6 +198,8 @@ class ResetPassword extends React.Component {
                                 },
                             },
                         })
+                    } else {
+                        throw `Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`
                     }
                 }.bind(this))
         } else {
@@ -160,6 +267,7 @@ class ResetPassword extends React.Component {
             </form>
         );
 
+
         const SentReset = (
             <div>Your password has been sucessfully reset. Please navigate to the home page and log in.
                 <Button className="md-cell md-cell--12" type="submit" raised label="Reset"
@@ -180,10 +288,11 @@ class ResetPassword extends React.Component {
                     zDepth={1}
                     className="paper-example"
                 >
-                    {this.state.stage === 'email' ?
-                        (this.state.sent ? SentRequest : RequestFormBody) :
-                        (this.state.succes ? SentReset : ResetFormBody)
-                    }
+                    {/*{this.state.stage === 'email' ?*/}
+                    {/*(this.state.sent ? SentRequest : RequestFormBody) :*/}
+                    {/*(this.state.succes ? SentReset : <ConnectedUserForm/>)*/}
+                    {/*}*/}
+                    <ConnectedPasswordForm onSubmit={this.handleSubmitReset}/>
                 </Paper>
             </div>
         );

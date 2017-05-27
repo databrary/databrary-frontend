@@ -8,7 +8,6 @@ import {connect} from "react-redux";
 import {setLoggedIn} from "../redux/actions";
 import {logOut} from "../api/loginout";
 import {withRouter} from "react-router";
-//
 
 class LoggedInButton extends PureComponent {
     constructor(props) {
@@ -17,11 +16,25 @@ class LoggedInButton extends PureComponent {
     }
 
     logOut() {
-        logOut().then(function () {
-                this.props.history.push("/");
-                this.props.setLoggedIn(false);
-            }.bind(this)
-        )
+        logOut().then(
+            function (response) {
+                if (response.status === "ok") {
+                    this.props.history.push("/");
+                    this.props.setLoggedIn(false);
+                } else if (response.status === "error") {
+                    this.props.addToast({
+                        text: `Error ${response.code}: Couldn't logout. Please clear your cookies.`,
+                        toastAction: {
+                            label: 'Report',
+                            onClick: () => {
+                                reportError("failed to logout", response.errorUuid)
+                            },
+                        },
+                    })
+                } else {
+                    throw `Unexpected response logout in ${this.__proto__.constructor.name}`
+                }
+            }.bind(this));
     }
 
     render() {
