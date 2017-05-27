@@ -13,6 +13,7 @@ import {withRouter} from "react-router";
 import {connect} from "react-redux";
 import {addSnackToast} from "../redux/actions";
 import {Field, reduxForm} from "redux-form";
+import {reportError} from "../api/report";
 
 class passwordField extends React.Component {
     constructor(props) {

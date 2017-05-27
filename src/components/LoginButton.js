@@ -9,6 +9,7 @@ import SelectionControl from "react-md/lib/SelectionControls/SelectionControl";
 import {connect} from "react-redux";
 import {setLoggedIn, setRememberMe} from "../redux/actions";
 import {logIn} from "../api/loginout";
+import {reportError} from "../api/report";
 
 export default class LoginButton extends Component {
     constructor(props) {

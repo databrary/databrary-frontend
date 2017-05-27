@@ -16,3 +16,5 @@ function reportError(msg, uuid) {
         }
     )
 }
+
+export {reportError}

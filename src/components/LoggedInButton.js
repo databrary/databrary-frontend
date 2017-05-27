@@ -8,6 +8,7 @@ import {connect} from "react-redux";
 import {setLoggedIn} from "../redux/actions";
 import {logOut} from "../api/loginout";
 import {withRouter} from "react-router";
+import {reportError} from "../api/report";
 
 class LoggedInButton extends PureComponent {
     constructor(props) {

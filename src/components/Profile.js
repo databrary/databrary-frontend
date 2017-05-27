@@ -13,6 +13,8 @@ import Button from "react-md/lib/Buttons";
 import {connect} from "react-redux";
 import config from "../config";
 import {getProfile} from "../api/profile";
+import {reportError} from "../api/report";
+
 
 class Profile extends Component {
     constructor(props) {

@@ -11,6 +11,7 @@ import Home from "./Home";
 import {addSnackToast, setLoggedIn} from "../redux/actions";
 import {loggedIn} from "../api/loginout";
 import ResetPassword from "./ResetPassword";
+import {reportError} from "../api/report";
 
 const navItems = [{
     exact: true,
