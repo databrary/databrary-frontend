@@ -9,7 +9,7 @@ function reportError(msg, uuid) {
         `${config.domain}/api/report-error`,
         {
             msg,
-            uuid
+            errorUuid: uuid
         },
         {
             withCredentials: true

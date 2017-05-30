@@ -9,15 +9,14 @@ function resetPasswordEmail(email) {
         {"email": email}
     ).then(
         function (response) {
-            return {...JSON.parse(response.data)}
+            return response.data
         }
     ).catch(
         function (error) {
-            let data = {...JSON.parse(error.reponse.data)};
             return {
                 status: "error",
                 code: error.response.status,
-                errorUuid: data.data
+                errorUuid: error.response.data.data
             }
         }
     );
@@ -32,15 +31,20 @@ function resetPasswordToken(token, password) {
         }
     ).then(
         function (response) {
-            return {...JSON.parse(response.data)}
+            return response.data
         }
     ).catch(
         function (error) {
-            let data = {...JSON.parse(error.reponse.data)};
-            return {
-                status: "error",
-                code: error.response.status,
-                errorUuid: data.data
+            if (error.response.status === 403) {
+                return {
+                    status: "expired"
+                }
+            } else {
+                return {
+                    status: "error",
+                    code: error.response.status,
+                    errorUuid: error.response.data.data
+                }
             }
         }
     )

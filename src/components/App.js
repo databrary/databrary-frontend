@@ -89,7 +89,7 @@ class App extends Component {
         const testSnackbar = <Button raised label="Toast Hello, World" onClick={this._toastHello.bind(this)}/>;
         return (
             <Switch>
-                <Route exact path="/reset-password" component={ResetPassword}/>
+                <Route path="/reset-password" component={ResetPassword}/>
                 <Route
                     render={
                         function ({location}) {

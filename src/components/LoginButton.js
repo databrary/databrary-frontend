@@ -7,7 +7,7 @@ import TextField from "react-md/lib/TextFields";
 import {Button} from "react-md/lib/Buttons";
 import SelectionControl from "react-md/lib/SelectionControls/SelectionControl";
 import {connect} from "react-redux";
-import {setLoggedIn, setRememberMe} from "../redux/actions";
+import {addSnackToast, setLoggedIn, setRememberMe} from "../redux/actions";
 import {logIn} from "../api/loginout";
 import {reportError} from "../api/report";
 
@@ -147,7 +147,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         onRememberMeCheck: (rememberMe) => dispatch(setRememberMe(rememberMe)),
-        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn))
+        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn)),
+        addToast: (toast) => dispatch(addSnackToast(toast))
     }
 };
 

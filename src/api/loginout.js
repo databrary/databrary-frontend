@@ -16,15 +16,14 @@ function logIn(email, password) {
         }
     ).then(
         function (response) {
-            return {...JSON.parse(response.data)}
+            return response.data
         }
     ).catch(
         function (error) {
-            let data = {...JSON.parse(error.reponse.data)};
             return {
                 status: "error",
                 code: error.response.status,
-                errorUuid: data.data
+                errorUuid: error.response.data.data
             }
         }
     );
@@ -39,15 +38,14 @@ function logOut() {
         }
     ).then(
         function (response) {
-            return {...JSON.parse(response.data)}
+            return response.data
         }
     ).catch(
         function (error) {
-            let data = {...JSON.parse(error.reponse.data)};
             return {
                 status: "error",
                 code: error.response.status,
-                errorUuid: data.data
+                errorUuid: error.response.data.data
             }
         }
     );
@@ -61,7 +59,7 @@ function loggedIn() {
         }
     ).then(
         function (response) {
-            return {...JSON.parse(response.data)}
+            return response.data
         }
     ).catch(
         function (error) {
@@ -71,11 +69,10 @@ function loggedIn() {
                     loggedIn: false
                 }
             } else {
-                let data = {...JSON.parse(error.reponse.data)};
                 return {
                     status: "error",
                     code: error.response.status,
-                    errorUuid: data.data
+                    errorUuid: error.response.data.data
                 }
             }
         }

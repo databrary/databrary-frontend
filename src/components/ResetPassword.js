@@ -12,15 +12,23 @@ import queryString from "query-string";
 import {withRouter} from "react-router";
 import {connect} from "react-redux";
 import {addSnackToast} from "../redux/actions";
-import {Field, reduxForm} from "redux-form";
+import {Field, reduxForm, SubmissionError as FormSubmissionError} from "redux-form";
 import {reportError} from "../api/report";
+import {Route, Switch} from "react-router-dom";
+import zxcvbn from "zxcvbn";
 
-class passwordField extends React.Component {
+class field extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            error: props.meta.dirty && Boolean(this.props.meta.error)
-        }
+            error: props.meta.dirty && Boolean(this.props.meta.error),
+        };
+        this._onChange = this._onChange.bind(this);
+    }
+
+    _onChange(val) {
+        this.props.onchange(val);
+        this.props.input.onChange(val);
     }
 
     render() {
@@ -28,8 +36,8 @@ class passwordField extends React.Component {
             <TextField
                 label={this.props.label}
                 className="md-cell md-cell--12"
-                type="password"
-                onChange={this.props.input.onChange}
+                type={this.props.type}
+                onChange={this.props.onchange ? this._onChange : this.props.input.onChange}
                 errorText={this.props.meta.error}
                 helpText={this.props.meta.warning}
                 error={this.props.meta.dirty && Boolean(this.props.meta.error)}
@@ -38,6 +46,12 @@ class passwordField extends React.Component {
         );
     }
 }
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addToast: (toast) => dispatch(addSnackToast(toast))
+    }
+};
 
 const validate = values => {
     const errors = {};
@@ -52,236 +66,206 @@ const validate = values => {
     } else if (values.password !== values.confirmPassword) {
         errors.confirmPassword = "Passwords don't match"
     }
-    // if (!values.email) {
-    //     errors.email = 'Required'
-    // } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    //     errors.email = 'Invalid email address'
-    // }
-    if (!values.age) {
-        errors.age = 'Required'
-    } else if (isNaN(Number(values.age))) {
-        errors.age = 'Must be a number'
-    } else if (Number(values.age) < 18) {
-        errors.age = 'Sorry, you must be at least 18 years old'
-    }
+
     return errors
 };
 
-const warn = values => {
-
-
-    const warnings = {};
-    if (values.age < 19) {
-        warnings.age = 'Hmm, you seem a bit young...'
-    }
-    return warnings
-};
-
 class PasswordForm extends React.Component {
-    render(props) {
-        const {valid, pristine, handleSubmit, submitting} = this.props;
-
-        return (
-
-            <form onSubmit={handleSubmit}>
-                <Field name="password" type="password" component={passwordField} label="Password"/>
-                <Field name="confirmPassword" type="password" component={passwordField} label="Confirm Password"/>
-                <footer
-                    className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
-                    style={{alignItems: 'center', margin: 0}}
-                >
-                    <Button disabled={!valid || pristine || submitting} className="md-cell md-cell--12" type="submit"
-                            raised label="Reset Password"
-                            onClick={handleSubmit}/>
-                </footer>
-            </form>
-        )
-    }
-}
-const ConnectedPasswordForm = reduxForm({
-    form: 'passwordForm', // a unique identifier for this form
-    validate, // <--- validation function given to redux-form
-    warn // <--- warning function given to redux-form
-})(PasswordForm);
-
-
-
-
-
-class ResetPassword extends React.Component {
-
     constructor(props) {
         super(props);
-        let parsedQ = queryString.parse(props.location.search);
-        if (parsedQ.token !== undefined) {
-            this.state = {
-                password: '',
-                confirmPassword: '',
-                stage: 'token',
-                token: parsedQ.token,
-                succes: false,
-            }
-        } else {
-            this.state = {
-                email: '',
-                sent: false,
-                stage: 'email',
-            };
-        }
+        let token = queryString.parse(props.location.search).token;
+        this.state = {
+            token: token,
+            expired: false,
+            passwordScore: 0,
+        };
+        this._handleSubmitReset = this._handleSubmitReset.bind(this);
+        this._sentReset = this._sentReset.bind(this);
+        this._expired = this._expired.bind(this);
+        this._onChange = this._onChange.bind(this);
 
-        this.handleFieldChange = this.handleFieldChange.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmitRequest = this.handleSubmitRequest.bind(this);
-        this.handleSubmitReset = this.handleSubmitReset.bind(this);
     }
 
-    handleFieldChange(value, event) {
-        let id = event.target.id;
-        this.setState(function () {
-            let state = {};
-            state[id] = value;
-            return state
+    _onChange(val) {
+        let stats = zxcvbn(val),
+            currentScore = stats.score;
+
+        this.setState({
+            ...this.state,
+            passwordScore: currentScore
         });
     }
 
-    handleChange(value) {
-        if (value) {
-            this.setState(function () {
-                return Object.assign(this.state, value)
-            });
-        }
-    }
-
-//
-    handleSubmitRequest(event) {
-        event.preventDefault();
-        resetPasswordEmail(this.state.email).then(
+    _handleSubmitReset(formData) {
+        resetPasswordToken(this.state.token, formData.password).then(
             function (response) {
                 if (response.status === "ok") {
-                    this.setState(function () {
-                        let state = {};
-                        state["sent"] = true;
-                        return state
-                    });
+                    // do nothing because form updates state
+                } else if (response.status === "expired") {
+                    this.setState({expired: true})
                 } else if (response.status === "error") {
                     this.props.addToast({
-                        text: "Couldn't submit password email",
-                        action: {
+                        text: "Couldn't change password",
+                        toastAction: {
                             label: 'Report',
                             onClick: () => {
-                                reportError("failed to submit password email", response.errorUuid)
+                                reportError("failed to submit token", response.errorUuid)
                             },
                         },
-                    })
+                    });
+                    return FormSubmissionError
                 } else {
                     throw `Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`
                 }
             }.bind(this))
     };
 
-    handleSubmitReset(event) {
-        event.preventDefault();
-        if (this.state.password === this.state.confirmPassword) {
-            resetPasswordToken(this.state.token, this.state.password).then(
-                function (response) {
-                    if (response.status === "ok") {
-                        this.setState({
-                            stage: "token",
-                            success: true,
-                        })
-                    } else if (response.status === "error") {
-                        this.props.addToast({
-                            text: "Couldn't change password",
-                            action: {
-                                label: 'Report',
-                                onClick: () => {
-                                    reportError("failed to submit token", response.errorUuid)
-                                },
-                            },
-                        })
-                    } else {
-                        throw `Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`
-                    }
-                }.bind(this))
-        } else {
-            console.log("pws don't match") //TODO
-        }
-    };
-
-    render() {
-
-        const RequestFormBody = (
-            <form className="md-grid">
-                <div className="md-cell md-cell--12">
-                    Enter the email you use for Databrary, and we’ll email you instructions on how to reset your
-                    password.
-                </div>
-                <TextField
-                    id="email"
-                    label="Email"
-                    className="md-cell md-cell--12"
-                    onChange={this.handleFieldChange}
-                    required
-                />
-                <footer
-                    className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
-                    style={{alignItems: 'center', margin: 0}}
-                >
-                    <Button className="md-cell md-cell--12" type="submit" raised label="Request"
-                            onClick={this.handleSubmitRequest}/>
-                </footer>
-            </form>
-        );
-
-        const ResetFormBody = (
-            <form className="md-grid">
-                <div className="md-cell md-cell--12">
-                    Enter your new password.
-                </div>
-                <TextField
-                    id="password"
-                    label="Password"
-                    // defaultValue="Vintage 50's Dress"
-                    // customSize="title"
-                    className="md-cell md-cell--12"
-                    type="password"
-                    onChange={this.handleFieldChange}
-                    required
-                />
-                <TextField
-                    id="confirmPassword"
-                    label="Confirm Password"
-                    // defaultValue="Vintage 50's Dress"
-                    // customSize="title"
-                    className="md-cell md-cell--12"
-                    type="password"
-                    onChange={this.handleFieldChange}
-                    required
-                />
-                <footer
-                    className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
-                    style={{alignItems: 'center', margin: 0}}
-                >
-                    <Button className="md-cell md-cell--12" type="submit" raised label="Reset"
-                            onClick={this.handleSubmitReset}/>
-                </footer>
-            </form>
-        );
-
-
-        const SentReset = (
-            <div>Your password has been sucessfully reset. Please navigate to the home page and log in.
-                <Button className="md-cell md-cell--12" type="submit" raised label="Reset"
+    _sentReset = () => (
+        <div>Your password has been sucessfully reset. Please navigate to the home page and log in.
+            <footer
+                className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
+                style={{alignItems: 'center', margin: 0}}
+            >
+                <Button className="md-cell md-cell--12" type="submit" raised label="Home"
                         onClick={function () {
                             this.props.history.push("/")
                         }.bind(this)}/>
-            </div>
-        );
+            </footer>
+        </div>
+    );
 
-        const SentRequest = (
-            <div>Check your email and please respond within 24 hours.</div>
-        );
+    _expired = () => (
+        <div>Your request has expired. Please restart the recovery process.
+            <footer
+                className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
+                style={{alignItems: 'center', margin: 0}}
+            >
+                <Button className="md-cell md-cell--12" type="submit" raised label="Restart"
+                        onClick={function () {
+                            this.props.history.push("/reset-password")
+                        }.bind(this)}/>
+            </footer>
+        </div>
+    );
 
+    render() {
+        let width = 24 * this.state.passwordScore + 4;
+        let style = {
+            width: width + '%',
+            opacity: width * .01 + .5,
+            background: this.state.passwordScore < 4 ? '#FC6F6F' : '#5CE592',
+            height: 5,
+            transition: 'all 400ms linear',
+            display: 'inline-block',
+        };
+
+        const {valid, pristine, submitting, submitSucceeded, handleSubmit} = this.props;
+        return (
+            this.state.expired ? this._expired() :
+                submitSucceeded ? this._sentReset() :
+                    // i have no idea why if you remove this and stretch the window the form is shrunken
+                    <form style={{minWidth: 217}} onSubmit={handleSubmit(this._handleSubmitReset)}>
+                        <Field name="password" type="password" onchange={this._onChange} component={field}
+                               label="Password"/>
+                        <Field name="confirmPassword" type="password" component={field} label="Confirm Password"/>
+                        {/* this is terrible but i have no idea what i'm doing */}
+                        <div
+                            className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
+                            style={{alignItems: 'center', margin: 0, justifyContent: 'center'}}
+                        >
+                            Password Strength:&nbsp;
+                            <div
+                                style={{fontWeight: 'bold'}}>{['Weak', 'Okay', 'Good', 'Strong', 'Great'][this.state.passwordScore]}</div>
+                        </div>
+                        <div
+                            className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
+                            style={{alignItems: 'center', margin: 0, justifyContent: 'flex-start'}}
+                        >
+                            <span style={style}/>
+                        </div>
+                        <div
+                            className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
+                            style={{alignItems: 'center', margin: 0}}
+                        >
+
+                            <Button disabled={!valid || pristine || submitting} className="md-cell md-cell--12"
+                                    type="submit"
+                                    raised label="Reset Password"
+                                    onClick={handleSubmit(this._handleSubmitReset)}/>
+                        </div>
+                    </form>
+        )
+    }
+}
+const ConnectedPasswordForm = connect(null, mapDispatchToProps)(reduxForm({
+    form: 'passwordForm', // a unique identifier for this form
+    validate, // <--- validation function given to redux-form
+})(PasswordForm));
+
+
+class EmailForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this._handleSubmitRequest = this._handleSubmitRequest.bind(this);
+    }
+
+    _handleSubmitRequest(formState) {
+        return resetPasswordEmail(formState.email).then(
+            function (response) {
+                if (response.status === "ok") {
+                    // do nothing because form updates state
+                } else if (response.status === "error") {
+                    this.props.addToast({
+                        text: "Couldn't submit password email",
+                        toastAction: {
+                            label: 'Report',
+                            onClick: () => {
+                                reportError("failed to submit password email", response.errorUuid)
+                            },
+                        },
+                    });
+                    // without _error field it's not caught?
+                    throw new FormSubmissionError({_error: ""})
+                } else {
+                    throw `Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`
+                }
+            }.bind(this))
+    };
+
+    render() {
+        const email = value =>
+            value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)
+                ? 'Invalid email address'
+                : undefined;
+        const required = value => value ? undefined : 'Required';
+        const {valid, pristine, submitting, submitSucceeded, handleSubmit} = this.props;
+        return (
+            submitSucceeded ? <div>Request submitted. Please check your email.</div> :
+                <form style={{minWidth: 217}} onSubmit={handleSubmit(this._handleSubmitRequest)}>
+                    <Field name="email" type="email" component={field} label="Email" validate={[email, required]}/>
+                    <footer
+                        className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
+                        style={{alignItems: 'center', margin: 0}}
+                    >
+                        <Button disabled={!valid || pristine || submitting} className="md-cell md-cell--12"
+                                type="submit"
+                                raised label="Send request"
+                                onClick={handleSubmit(this._handleSubmitRequest)}/>
+                    </footer>
+                </form>
+        )
+    }
+}
+
+const ConnectedEmailForm = connect(null, mapDispatchToProps)(reduxForm({
+    form: 'emailForm', // a unique identifier for this form
+})(EmailForm));
+
+class ResetPassword extends React.Component {
+
+    render() {
+        // router won't pass search params as path
+        let actualPath = this.props.location.pathname + this.props.location.search;
         return (
             <div className="paper-container">
                 <Paper
@@ -289,23 +273,16 @@ class ResetPassword extends React.Component {
                     zDepth={1}
                     className="paper-example"
                 >
-                    {/*{this.state.stage === 'email' ?*/}
-                    {/*(this.state.sent ? SentRequest : RequestFormBody) :*/}
-                    {/*(this.state.succes ? SentReset : <ConnectedUserForm/>)*/}
-                    {/*}*/}
-                    <ConnectedPasswordForm onSubmit={this.handleSubmitReset}/>
+                    <Switch location={{...this.props.location, pathname: actualPath}}>
+                        <Route exact path="/reset-password" component={ConnectedEmailForm}/>
+                        <Route exact path="/reset-password?token=(.*)" component={ConnectedPasswordForm}/>
+                    </Switch>
                 </Paper>
             </div>
         );
     }
-
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        addToast: (toast) => dispatch(addSnackToast(toast))
-    }
-};
 
 const connectedResetPassword = connect(null, mapDispatchToProps)(ResetPassword);
 export default withRouter(connectedResetPassword)
