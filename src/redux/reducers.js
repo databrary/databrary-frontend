@@ -3,12 +3,11 @@
  */
 
 import {combineReducers} from "redux";
-import {ADD_SNACK_TOAST, REMOVE_SNACK_TOAST, SET_LOGGED_IN, SET_REMEMBER_ME} from "./actions";
+import {ADD_SNACK_TOAST, REMOVE_SNACK_TOAST, SET_LOGGED_IN} from "./actions";
 
 
 const initialState = {
     loggedIn: false,
-    rememberMe: false,
 };
 
 const initialSnackBarState = {
@@ -17,11 +16,6 @@ const initialSnackBarState = {
 
 function flags(state = initialState, action) {
     switch (action.type) {
-        case SET_REMEMBER_ME:
-            return {
-                ...state,
-                rememberMe: action.rememberMe
-            };
         case SET_LOGGED_IN:
             return {
                 ...state,
@@ -32,14 +26,14 @@ function flags(state = initialState, action) {
     }
 }
 
-function snackBar(state = initialSnackBarState, action) {
+function snackBar(state = initialSnackBarState, actin) {
     const toasts = state.toasts.slice();
-    switch (action.type) {
+    switch (actin.type) {
         case ADD_SNACK_TOAST:
-            let {text, toastAction} = action.toast;
+            let {text, action} = actin.toast;
             toasts.push({
                 text,
-                action: toastAction
+                action: action
             });
             return {
                 toasts

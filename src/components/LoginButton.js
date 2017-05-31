@@ -7,7 +7,7 @@ import TextField from "react-md/lib/TextFields";
 import {Button} from "react-md/lib/Buttons";
 import SelectionControl from "react-md/lib/SelectionControls/SelectionControl";
 import {connect} from "react-redux";
-import {addSnackToast, setLoggedIn, setRememberMe} from "../redux/actions";
+import {addSnackToast, setLoggedIn} from "../redux/actions";
 import {logIn} from "../api/loginout";
 import {reportError} from "../api/report";
 
@@ -55,6 +55,7 @@ class LoginForm extends Component {
         this.state = {
             email: '',
             password: '',
+            rememberMe: false,
         };
 
         this.handleFieldChange = this.handleFieldChange.bind(this);
@@ -73,7 +74,7 @@ class LoginForm extends Component {
     handleSubmit(event) {
         event.preventDefault();
 
-        logIn(this.state.email, this.state.password).then(
+        logIn(this.state.email, this.state.password, this.state.rememberMe).then(
             function (response) {
                 if (response.status === "ok") {
                     this.props.setLoggedIn(true);
@@ -82,7 +83,7 @@ class LoginForm extends Component {
                     this.props.setLoggedIn(false);
                     this.props.addToast({
                         text: `Error ${response.code}: Couldn't login. Please try again.`,
-                        toastAction: {
+                        action: {
                             label: 'Report',
                             onClick: () => {
                                 reportError("failed to login", response.errorUuid)
@@ -125,9 +126,9 @@ class LoginForm extends Component {
                             onClick={this.handleSubmit}/>
                     <SelectionControl
                         className="md-cell md-cell--12"
-                        onChange={(v, e) => this.props.onRememberMeCheck(v)}
-                        name="remember_me_checkbox"
-                        id="remember_me_checkbox"
+                        onChange={this.handleFieldChange}
+                        name="rememberMe"
+                        id="rememberMe"
                         label="Remember Me"
                         type="checkbox"
                     />
@@ -146,7 +147,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        onRememberMeCheck: (rememberMe) => dispatch(setRememberMe(rememberMe)),
         setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn)),
         addToast: (toast) => dispatch(addSnackToast(toast))
     }

@@ -11,10 +11,9 @@ import Media, {MediaOverlay} from "react-md/lib/Media";
 import Avatar from "react-md/lib/Avatars";
 import Button from "react-md/lib/Buttons";
 import {connect} from "react-redux";
-import config from "../config";
 import {getProfile} from "../api/profile";
 import {reportError} from "../api/report";
-
+import {addSnackToast} from "../redux/actions";
 
 class Profile extends Component {
     constructor(props) {
@@ -30,11 +29,11 @@ class Profile extends Component {
             getProfile().then(
                 function (response) {
                     if (response.status === "ok") {
-                        this.setState(response.data);
+                        this.setState({...response.data});
                     } else if (response.status === "error") {
                         this.props.addToast({
                             text: `Error ${response.code}: Couldn't get profile. Please try again.`,
-                            toastAction: {
+                            action: {
                                 label: 'Report',
                                 onClick: () => {
                                     reportError("failed to get getProfile", response.errorUuid)
@@ -54,7 +53,8 @@ class Profile extends Component {
         return (
             <Card style={{maxWidth: 600}} className="md-block-centered">
                 <Media>
-                    <img src={`${config.static}/images/ahmad.jpg`} alt="presentation"/>
+                    <img src={`https://nyu.databrary.org/party/${this.state.party_id}/avatar?size=500`}
+                         alt="presentation"/>
                     <MediaOverlay>
                         <CardTitle title={this.state.party_prename + " " + this.state.party_name} subtitle="Wow!">
                             <Button className="md-cell--right" icon>star_outline</Button>
@@ -84,4 +84,10 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(mapStateToProps)(Profile);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addToast: (toast) => dispatch(addSnackToast(toast))
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

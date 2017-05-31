@@ -7,7 +7,6 @@ import axios from "axios";
 function getProfile() {
     return axios.get(
         `${config.domain}/profile`,
-        {},
         {
             withCredentials: true
         }

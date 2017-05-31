@@ -3,10 +3,10 @@
  */
 import config from "../config";
 import axios from "axios";
-function logIn(email, password) {
+function logIn(email, password, rememberMe) {
     return axios.post(
         `${config.domain}/api/user/login`,
-        {},
+        {rememberMe: rememberMe},
         {
             auth: {
                 username: email,
@@ -59,7 +59,10 @@ function loggedIn() {
         }
     ).then(
         function (response) {
-            return response.data
+            return {
+                status: "ok",
+                loggedIn: response.data.data.logged_in
+            }
         }
     ).catch(
         function (error) {

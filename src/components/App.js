@@ -2,7 +2,6 @@ import Button from "react-md/lib/Buttons/Button";
 import UserButton from "./UserButton";
 import React, {Component} from "react";
 import {NavigationDrawer} from "react-md/lib/NavigationDrawers";
-import NavLink from "./NavLink";
 import {connect} from "react-redux";
 import {Link as RouterLink, Route, Switch} from "react-router-dom";
 import {withRouter} from "react-router";
@@ -12,18 +11,19 @@ import {addSnackToast, setLoggedIn} from "../redux/actions";
 import {loggedIn} from "../api/loginout";
 import ResetPassword from "./ResetPassword";
 import {reportError} from "../api/report";
+import FontIcon from "react-md/lib/FontIcons";
 
 const navItems = [{
     exact: true,
-    label: 'Home',
+    primaryText: 'Home',
     to: '/home',
-    icon: 'home',
+    leftIcon: <FontIcon>home</FontIcon>,
     loggedIn: false,
 }, {
     exact: true,
-    label: 'Profile',
-    to: '/getProfile',
-    icon: 'account_circle',
+    primaryText: 'Profile',
+    to: '/profile',
+    leftIcon: <FontIcon>account_circle</FontIcon>,
     loggedIn: true,
 }];
 
@@ -65,7 +65,7 @@ class App extends Component {
     _toastHello() {
         this.props.addToast({
             text: 'Connection timed out. Showing limited messages.',
-            toastAction: {
+            action: {
                 label: 'Retry',
                 onClick: () => {
                     alert('You tried again for some reason..'); // eslint-disable-line no-alert
@@ -95,16 +95,20 @@ class App extends Component {
                         function ({location}) {
                             return (
                                 <NavigationDrawer
-                                    mobileDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
-                                    tabletDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
-                                    desktopDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
+                                    mobileDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY_MINI}
+                                    tabletDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY_MINI}
+                                    desktopDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY_MINI}
                                     drawerTitle="Databrary"
                                     toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton, testSnackbar]}
                                     toolbarTitle="Databrary"
                                     toolbarThemeType="themed"
                                     navItems={
                                         navItems.filter(p => (this.props.loggedIn === p.loggedIn) || !p.loggedIn).map(props =>
-                                            <NavLink {...props} key={props.to}/>)
+                                            ({
+                                                ...props,
+                                                active: this.props.history.location.pathname === props.to,
+                                                onClick: () => props.to ? this.props.history.push(props.to) : null
+                                            }))
                                     }
                                 >
                                     <Switch key={location.key}>

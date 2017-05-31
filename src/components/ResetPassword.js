@@ -106,7 +106,7 @@ class PasswordForm extends React.Component {
                 } else if (response.status === "error") {
                     this.props.addToast({
                         text: "Couldn't change password",
-                        toastAction: {
+                        action: {
                             label: 'Report',
                             onClick: () => {
                                 reportError("failed to submit token", response.errorUuid)
@@ -217,7 +217,7 @@ class EmailForm extends React.Component {
                 } else if (response.status === "error") {
                     this.props.addToast({
                         text: "Couldn't submit password email",
-                        toastAction: {
+                        action: {
                             label: 'Report',
                             onClick: () => {
                                 reportError("failed to submit password email", response.errorUuid)
