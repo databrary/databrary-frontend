@@ -9,7 +9,7 @@ import ListItem from "react-md/lib/Lists/ListItem";
 import MenuButton from "react-md/lib/Menus/MenuButton";
 import Positions from "react-md/lib/Menus/Positions";
 import {setLoggedIn} from "../redux/actions";
-import {logOut} from "../api/loginout";
+import {logOut} from "../api/user";
 import {withRouter} from "react-router";
 import {reportError} from "../api/report";
 

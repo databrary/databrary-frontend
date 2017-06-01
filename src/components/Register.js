@@ -3,6 +3,105 @@ import {Step, StepButton, Stepper} from "material-ui/Stepper";
 import {Button} from "react-md/lib/Buttons";
 import ExpandTransition from "material-ui/internal/ExpandTransition";
 import TextField from "react-md/lib/TextFields";
+import FormTextField from "./FormTextField";
+import {addSnackToast} from "../redux/actions";
+import {connect} from "react-redux";
+import {Field, reduxForm} from "redux-form";
+import {userExists} from "../api/user";
+import SearchToolbarExample from "./AutoComplete";
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+
+const userExist = (values) => {
+    //TODO get ride of sleep
+    return sleep(2000).then(() => userExists(values.email).then((data) => {
+        if (data.exists) {
+            throw {email: 'That email already exists'}
+        }
+    }))
+};
+
+class AccountForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this._handleSubmit = this._handleSubmit.bind(this);
+    }
+
+    _handleSubmit() {
+
+    }
+
+    render() {
+        return (
+            <div>
+                <div className="md-grid">
+                    <Field name="firstName" component={FormTextField}
+                           label="First name"
+                           customSize="title"
+                           size={10}
+                           className="md-cell md-cell--6"
+                           required
+                    />
+                    <Field name="lastName" component={FormTextField}
+                           label="Last name"
+                           customSize="title"
+                           size={10}
+                           className="md-cell md-cell--6"
+                           required
+                    />
+                </div>
+                <div className="md-grid">
+                    <Field name="email" component={FormTextField}
+                           label="Email"
+                           customSize="title"
+                           size={10}
+                           className="md-cell md-cell--6"
+                           required
+                    />
+                    <Field name="affiliation" component={SearchToolbarExample}
+                           label="Affiliation"
+                           customSize="title"
+                           size={10}
+                           className="md-cell md-cell--6"
+                           required
+                    />
+                </div>
+            </div>
+        )
+    }
+}
+
+
+const validate = values => {
+    const errors = {};
+    if (!values.password) {
+        errors.password = 'Required'
+    } else if (values.password !== values.confirmPassword) {
+        errors.password = "Passwords don't match"
+    }
+
+    if (!values.confirmPassword) {
+        errors.confirmPassword = 'Required'
+    } else if (values.password !== values.confirmPassword) {
+        errors.confirmPassword = "Passwords don't match"
+    }
+
+    return errors
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addToast: (toast) => dispatch(addSnackToast(toast))
+    }
+};
+
+const ConnectedAccountForm = connect(null, mapDispatchToProps)(reduxForm({
+    form: 'accountForm', // a unique identifier for this form
+    validate, // <--- validation function given to redux-form
+    asyncValidate: userExist, // async validation
+    asyncBlurFields: ['email']
+})(AccountForm));
 
 class HorizontalTransition extends React.Component {
 
@@ -42,39 +141,7 @@ class HorizontalTransition extends React.Component {
     getStepContent(stepIndex) {
         switch (stepIndex) {
             case 0:
-                return (
-                    <p>
-                        <div className="md-grid">
-                            <TextField
-                                id="first-name"
-                                label="First name"
-                                placeholder="Bob"
-                                customSize="title"
-                                size={10}
-                                className="md-cell md-cell--bottom"
-                            />
-                            <TextField
-                                id="last-name"
-                                label="Last name"
-                                placeholder="Max"
-                                customSize="title"
-                                size={10}
-                                className="md-cell md-cell--bottom"
-                            />
-                        </div>
-                        <div className="md-grid">
-                            <TextField
-                                id="first-name"
-                                label="Email"
-                                placeholder="bob@max.com"
-                                customSize="title"
-                                size={10}
-                                className="md-cell md-cell--bottom"
-                            />
-
-                        </div>
-                    </p>
-                );
+                return <ConnectedAccountForm/>;
             case 1:
                 return (
                     <div>
@@ -115,7 +182,7 @@ class HorizontalTransition extends React.Component {
 
     renderContent() {
         const {finished, stepIndex} = this.state;
-        const contentStyle = {margin: '0 16px', overflow: 'hidden'};
+        const contentStyle = {margin: '0 16px'};
 
         if (finished) {
             return (
@@ -137,7 +204,7 @@ class HorizontalTransition extends React.Component {
         return (
             <div style={contentStyle}>
                 <div>{this.getStepContent(stepIndex)}</div>
-                <div style={{marginTop: 24, marginBottom: 12}}>
+                <div style={{textAlign: "center", marginTop: 24, marginBottom: 12}}>
                     <Button
                         raised
                         label="Back"
@@ -164,7 +231,7 @@ class HorizontalTransition extends React.Component {
                 <Stepper linear={false} activeStep={stepIndex}>
                     <Step>
                         <StepButton onClick={() => this.setState({stepIndex: 0})}>
-                            Select campaign settings
+                            Create Account
                         </StepButton>
                     </Step>
                     <Step>
@@ -188,7 +255,7 @@ class HorizontalTransition extends React.Component {
                         </StepButton>
                     </Step>
                 </Stepper>
-                <ExpandTransition loading={loading} open={true}>
+                <ExpandTransition loading={loading} open={true} style={{overflow: 'visible'}}>
                     {this.renderContent()}
                 </ExpandTransition>
             </div>

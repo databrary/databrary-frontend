@@ -3,6 +3,46 @@
  */
 import config from "../config";
 import axios from "axios";
+
+function userExists(email) {
+    return axios.get(
+        `${config.domain}/api/user/exists?email=${email}`
+    ).then(
+        function (response) {
+            return response.data.data
+        }
+    ).catch(
+        function (error) {
+            return {
+                status: "error",
+                code: error.response.status,
+                errorUuid: error.response.data.data
+            }
+        }
+    );
+}
+
+function getProfile() {
+    return axios.get(
+        `${config.domain}/profile`,
+        {
+            withCredentials: true
+        }
+    ).then(
+        function (response) {
+            return response.data
+        }
+    ).catch(
+        function (error) {
+            return {
+                status: "error",
+                code: error.response.status,
+                errorUuid: error.response.data.data
+            }
+        }
+    );
+}
+
 function logIn(email, password, rememberMe) {
     return axios.post(
         `${config.domain}/api/user/login`,
@@ -82,4 +122,4 @@ function loggedIn() {
     );
 }
 
-export {logIn, logOut, loggedIn}
+export {userExists, getProfile, logIn, logOut, loggedIn}

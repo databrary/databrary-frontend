@@ -2,15 +2,15 @@
 import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 import {findDOMNode} from "react-dom";
-import cn from "classnames";
 import {Link} from "react-router-dom";
 import Autocomplete from "react-md/lib/Autocompletes";
 import FontIcon from "react-md/lib/FontIcons";
 import Button from "react-md/lib/Buttons/Button";
-import throttle from "lodash.throttle";
 import Waypoint from "react-waypoint";
+import cn from "classnames";
+import throttle from "lodash.throttle";
 
-import "../scss/search.css";
+import "../scss/search.scss";
 
 const style = {flexWrap: 'nowrap'};
 

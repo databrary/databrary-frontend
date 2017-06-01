@@ -5,7 +5,7 @@
 import React from "react";
 import Paper from "react-md/lib/Papers";
 import "../scss/resetPassword.css";
-import TextField from "react-md/lib/TextFields";
+
 import {resetPasswordEmail, resetPasswordToken} from "../api/resetpassword";
 import {Button} from "react-md/lib/Buttons";
 import queryString from "query-string";
@@ -16,36 +16,8 @@ import {Field, reduxForm, SubmissionError as FormSubmissionError} from "redux-fo
 import {reportError} from "../api/report";
 import {Route, Switch} from "react-router-dom";
 import zxcvbn from "zxcvbn";
+import FormTextField from "./FormTextField";
 
-class field extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            error: props.meta.dirty && Boolean(this.props.meta.error),
-        };
-        this._onChange = this._onChange.bind(this);
-    }
-
-    _onChange(val) {
-        this.props.onchange(val);
-        this.props.input.onChange(val);
-    }
-
-    render() {
-        return (
-            <TextField
-                label={this.props.label}
-                className="md-cell md-cell--12"
-                type={this.props.type}
-                onChange={this.props.onchange ? this._onChange : this.props.input.onChange}
-                errorText={this.props.meta.error}
-                helpText={this.props.meta.warning}
-                error={this.props.meta.dirty && Boolean(this.props.meta.error)}
-                required
-            />
-        );
-    }
-}
 
 const mapDispatchToProps = (dispatch) => {
     return {
@@ -165,9 +137,10 @@ class PasswordForm extends React.Component {
                 submitSucceeded ? this._sentReset() :
                     // i have no idea why if you remove this and stretch the window the form is shrunken
                     <form style={{minWidth: 217}} onSubmit={handleSubmit(this._handleSubmitReset)}>
-                        <Field name="password" type="password" onchange={this._onChange} component={field}
-                               label="Password"/>
-                        <Field name="confirmPassword" type="password" component={field} label="Confirm Password"/>
+                        <Field name="password" type="password" onchange={this._onChange} component={FormTextField}
+                               label="Password" required/>
+                        <Field name="confirmPassword" type="password" component={FormTextField} label="Confirm Password"
+                               required/>
                         {/* this is terrible but i have no idea what i'm doing */}
                         <div
                             className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
@@ -242,7 +215,8 @@ class EmailForm extends React.Component {
         return (
             submitSucceeded ? <div>Request submitted. Please check your email.</div> :
                 <form style={{minWidth: 217}} onSubmit={handleSubmit(this._handleSubmitRequest)}>
-                    <Field name="email" type="email" component={field} label="Email" validate={[email, required]}/>
+                    <Field name="email" type="email" component={FormTextField} label="Email"
+                           validate={[email, required]} required/>
                     <footer
                         className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
                         style={{alignItems: 'center', margin: 0}}

@@ -3,24 +3,21 @@ import UserButton from "./UserButton";
 import React, {Component} from "react";
 import {NavigationDrawer} from "react-md/lib/NavigationDrawers";
 import {connect} from "react-redux";
-import {Link as RouterLink, Route, Switch} from "react-router-dom";
+import {Route, Switch} from "react-router-dom";
 import {withRouter} from "react-router";
 import the404Page from "./the404Page";
 import Home from "./Home";
 import {addSnackToast, setLoggedIn} from "../redux/actions";
-import {loggedIn} from "../api/loginout";
+import {loggedIn} from "../api/user";
 import ResetPassword from "./ResetPassword";
 import {reportError} from "../api/report";
 import FontIcon from "react-md/lib/FontIcons";
-
 const navItems = [{
-    exact: true,
     primaryText: 'Home',
     to: '/home',
     leftIcon: <FontIcon>home</FontIcon>,
     loggedIn: false,
 }, {
-    exact: true,
     primaryText: 'Profile',
     to: '/profile',
     leftIcon: <FontIcon>account_circle</FontIcon>,
@@ -75,14 +72,22 @@ class App extends Component {
     }
 
     render() {
+        // const selectField = (
+        //     <SelectField
+        //         id="disabledNumbers"
+        //         label="Disabled"
+        //         defaultValue={1}
+        //         menuItems={["adfffffffffffffffffffffffffff","adffffffffffffffffffffffffff", "fffffffffffffffffffffffffffffffffff"]}
+        //         className="md-cell"
+        //     />
+        // );
         const signUpButton = (
             <Button
                 style={{marginLeft: 5, marginRight: 5}}
                 raised
                 primary
                 label="Sign up"
-                component={RouterLink}
-                to="/user/register"
+                onClick={() => this.props.history.push("/user/register")}
             />
         );
         const userButton = <UserButton/>;
@@ -103,12 +108,16 @@ class App extends Component {
                                     toolbarTitle="Databrary"
                                     toolbarThemeType="themed"
                                     navItems={
-                                        navItems.filter(p => (this.props.loggedIn === p.loggedIn) || !p.loggedIn).map(props =>
-                                            ({
-                                                ...props,
-                                                active: this.props.history.location.pathname === props.to,
-                                                onClick: () => props.to ? this.props.history.push(props.to) : null
-                                            }))
+                                        navItems
+                                            .filter(p => (this.props.loggedIn === p.loggedIn) || !p.loggedIn)
+                                            .map(props =>
+                                                ({
+                                                    primaryText: props.primaryText,
+                                                    leftIcon: props.leftIcon,
+                                                    active: this.props.history.location.pathname === props.to,
+                                                    onClick: () => props.to ? this.props.history.push(props.to) : null
+                                                })
+                                            )
                                     }
                                 >
                                     <Switch key={location.key}>

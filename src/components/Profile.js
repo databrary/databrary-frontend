@@ -11,7 +11,7 @@ import Media, {MediaOverlay} from "react-md/lib/Media";
 import Avatar from "react-md/lib/Avatars";
 import Button from "react-md/lib/Buttons";
 import {connect} from "react-redux";
-import {getProfile} from "../api/profile";
+import {getProfile} from "../api/user";
 import {reportError} from "../api/report";
 import {addSnackToast} from "../redux/actions";
 

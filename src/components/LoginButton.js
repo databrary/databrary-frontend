@@ -8,7 +8,7 @@ import {Button} from "react-md/lib/Buttons";
 import SelectionControl from "react-md/lib/SelectionControls/SelectionControl";
 import {connect} from "react-redux";
 import {addSnackToast, setLoggedIn} from "../redux/actions";
-import {logIn} from "../api/loginout";
+import {logIn} from "../api/user";
 import {reportError} from "../api/report";
 
 export default class LoginButton extends Component {
