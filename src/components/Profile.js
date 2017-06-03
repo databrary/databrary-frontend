@@ -12,8 +12,8 @@ import Avatar from "react-md/lib/Avatars";
 import Button from "react-md/lib/Buttons";
 import {connect} from "react-redux";
 import {getProfile} from "../api/user";
-import {reportError} from "../api/report";
 import {addSnackToast} from "../redux/actions";
+import {withRouter} from "react-router";
 
 class Profile extends Component {
     constructor(props) {
@@ -29,19 +29,11 @@ class Profile extends Component {
             getProfile().then(
                 function (response) {
                     if (response.status === "ok") {
-                        this.setState({...response.data});
+                        this.setState({...response.user});
                     } else if (response.status === "error") {
-                        this.props.addToast({
-                            text: `Error ${response.code}: Couldn't get profile. Please try again.`,
-                            action: {
-                                label: 'Report',
-                                onClick: () => {
-                                    reportError("failed to get getProfile", response.errorUuid)
-                                },
-                            },
-                        })
+                        this.props.history.goBack();
                     } else {
-                        throw `Unexpected response profile in ${this.__proto__.constructor.name}`
+                        throw new Error(`Unexpected response profile in ${this.__proto__.constructor.name}`)
                     }
                 }.bind(this)
             )
@@ -90,4 +82,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile));

@@ -3,21 +3,18 @@
  */
 import config from "../config";
 import axios from "axios";
+import {makeErrorSnack} from "./report";
+
 function resetPasswordEmail(email) {
     return axios.post(
         `${config.domain}/api/user/reset-password/email`,
         {"email": email}
     ).then(
-        function (response) {
-            return response.data
-        }
+        () => ({status: 'ok'})
     ).catch(
         function (error) {
-            return {
-                status: "error",
-                code: error.response.status,
-                errorUuid: error.response.data.data
-            }
+            makeErrorSnack(error, "couldn't submit reset-password email");
+            return {status: 'error'}
         }
     );
 }
@@ -25,30 +22,19 @@ function resetPasswordEmail(email) {
 function resetPasswordToken(token, password) {
     return axios.post(
         `${config.domain}/api/user/reset-password/token`,
-        {
-            "token": token,
-            "password": password,
-        }
+        {"token": token, "password": password}
     ).then(
-        function (response) {
-            return response.data
-        }
+        () => ({status: 'ok'})
     ).catch(
         function (error) {
-            if (error.response.status === 403) {
-                return {
-                    status: "expired"
-                }
+            if (error.response && error.response.status === 403) {
+                return {status: "expired"}
             } else {
-                return {
-                    status: "error",
-                    code: error.response.status,
-                    errorUuid: error.response.data.data
-                }
+                makeErrorSnack(error, "couldn't submit reset-password token");
+                return {status: 'error'}
             }
         }
     )
 }
-
 
 export {resetPasswordEmail, resetPasswordToken}

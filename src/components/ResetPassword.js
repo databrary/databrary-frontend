@@ -13,7 +13,6 @@ import {withRouter} from "react-router";
 import {connect} from "react-redux";
 import {addSnackToast} from "../redux/actions";
 import {Field, reduxForm, SubmissionError as FormSubmissionError} from "redux-form";
-import {reportError} from "../api/report";
 import {Route, Switch} from "react-router-dom";
 import zxcvbn from "zxcvbn";
 import FormTextField from "./FormTextField";
@@ -76,18 +75,9 @@ class PasswordForm extends React.Component {
                 } else if (response.status === "expired") {
                     this.setState({expired: true})
                 } else if (response.status === "error") {
-                    this.props.addToast({
-                        text: "Couldn't change password",
-                        action: {
-                            label: 'Report',
-                            onClick: () => {
-                                reportError("failed to submit token", response.errorUuid)
-                            },
-                        },
-                    });
                     return FormSubmissionError
                 } else {
-                    throw `Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`
+                    throw new Error(`Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`)
                 }
             }.bind(this))
     };
@@ -188,19 +178,9 @@ class EmailForm extends React.Component {
                 if (response.status === "ok") {
                     // do nothing because form updates state
                 } else if (response.status === "error") {
-                    this.props.addToast({
-                        text: "Couldn't submit password email",
-                        action: {
-                            label: 'Report',
-                            onClick: () => {
-                                reportError("failed to submit password email", response.errorUuid)
-                            },
-                        },
-                    });
-                    // without _error field it's not caught?
                     throw new FormSubmissionError({_error: ""})
                 } else {
-                    throw `Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`
+                    throw new Error(`Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`)
                 }
             }.bind(this))
     };

@@ -11,34 +11,18 @@ import Positions from "react-md/lib/Menus/Positions";
 import {setLoggedIn} from "../redux/actions";
 import {logOut} from "../api/user";
 import {withRouter} from "react-router";
-import {reportError} from "../api/report";
 
 class LoggedInButton extends PureComponent {
     constructor(props) {
         super(props);
-        this.logOut = this.logOut.bind(this);
+        this._logOut = this._logOut.bind(this);
     }
 
-    logOut() {
-        logOut().then(
-            function (response) {
-                if (response.status === "ok") {
-                    this.props.history.push("/");
-                    this.props.setLoggedIn(false);
-                } else if (response.status === "error") {
-                    this.props.addToast({
-                        text: `Error ${response.code}: Couldn't logout. Please clear your cookies.`,
-                        action: {
-                            label: 'Report',
-                            onClick: () => {
-                                reportError("failed to logout", response.errorUuid)
-                            },
-                        },
-                    })
-                } else {
-                    throw `Unexpected response logout in ${this.__proto__.constructor.name}`
-                }
-            }.bind(this));
+    _logOut() {
+        logOut().then(() => {
+            this.props.history.push("/");
+            this.props.setLoggedIn(false);
+        })
     }
 
     render() {
@@ -51,7 +35,7 @@ class LoggedInButton extends PureComponent {
                 buttonChildren="account_circle"
             >
                 <ListItem onClick={this.open} primaryText="My Account"/>
-                <ListItem onClick={this.logOut} primaryText="Logout"/>
+                <ListItem onClick={this._logOut} primaryText="Logout"/>
             </MenuButton>
         );
     }

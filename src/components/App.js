@@ -10,7 +10,6 @@ import Home from "./Home";
 import {addSnackToast, setLoggedIn} from "../redux/actions";
 import {loggedIn} from "../api/user";
 import ResetPassword from "./ResetPassword";
-import {reportError} from "../api/report";
 import FontIcon from "react-md/lib/FontIcons";
 const navItems = [{
     primaryText: 'Home',
@@ -39,24 +38,7 @@ class App extends Component {
             lazyRegister: null,
             lazyProfile: null,
         };
-        loggedIn().then(
-            function (response) {
-                if (response.status === "ok") {
-                    this.props.setLoggedIn(response.loggedIn);
-                } else if (response.status === "error") {
-                    this.props.addToast({
-                        text: `Error ${response.code}: Couldn't check logged in status. Please clear your cookies.`,
-                        action: {
-                            label: 'Report',
-                            onClick: () => {
-                                reportError("failed to verify log in status", response.errorUuid)
-                            },
-                        },
-                    })
-                } else {
-                    throw `Unexpected response loggedIn in ${this.__proto__.constructor.name}`
-                }
-            }.bind(this))
+        loggedIn().then((loggedIn) => this.props.setLoggedIn(loggedIn))
     }
 
     _toastHello() {

@@ -15,8 +15,8 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const userExist = (values) => {
     //TODO get ride of sleep
-    return sleep(2000).then(() => userExists(values.email).then((data) => {
-        if (data.exists) {
+    return sleep(2000).then(() => userExists(values.email).then((exists) => {
+        if (exists) {
             throw {email: 'That email already exists'}
         }
     }))
@@ -36,36 +36,16 @@ class AccountForm extends React.Component {
         return (
             <div>
                 <div className="md-grid">
-                    <Field name="firstName" component={FormTextField}
-                           label="First name"
-                           customSize="title"
-                           size={10}
-                           className="md-cell md-cell--6"
-                           required
-                    />
-                    <Field name="lastName" component={FormTextField}
-                           label="Last name"
-                           customSize="title"
-                           size={10}
-                           className="md-cell md-cell--6"
-                           required
-                    />
+                    <Field name="firstName" component={FormTextField} label="First name" customSize="title" size={10}
+                           className="md-cell md-cell--6" required/>
+                    <Field name="lastName" component={FormTextField} label="Last name" customSize="title" size={10}
+                           className="md-cell md-cell--6" required/>
                 </div>
                 <div className="md-grid">
-                    <Field name="email" component={FormTextField}
-                           label="Email"
-                           customSize="title"
-                           size={10}
-                           className="md-cell md-cell--6"
-                           required
-                    />
-                    <Field name="affiliation" component={SearchToolbarExample}
-                           label="Affiliation"
-                           customSize="title"
-                           size={10}
-                           className="md-cell md-cell--6"
-                           required
-                    />
+                    <Field name="email" component={FormTextField} label="Email" customSize="title" size={10}
+                           className="md-cell md-cell--6" required/>
+                    <Field name="affiliation" component={SearchToolbarExample} label="Affiliation" customSize="title"
+                           size={10} className="md-cell md-cell--6" required/>
                 </div>
             </div>
         )
@@ -205,19 +185,9 @@ class HorizontalTransition extends React.Component {
             <div style={contentStyle}>
                 <div>{this.getStepContent(stepIndex)}</div>
                 <div style={{textAlign: "center", marginTop: 24, marginBottom: 12}}>
-                    <Button
-                        raised
-                        label="Back"
-                        disabled={stepIndex === 0}
-                        onClick={this.handlePrev}
-                        style={{marginRight: 12}}
-                    />
-                    <Button
-                        raised
-                        label={stepIndex === 4 ? 'Finish' : 'Next'}
-                        primary
-                        onClick={this.handleNext}
-                    />
+                    <Button raised label="Back" disabled={stepIndex === 0} onClick={this.handlePrev}
+                            style={{marginRight: 12}}/>
+                    <Button raised label={stepIndex === 4 ? 'Finish' : 'Next'} primary onClick={this.handleNext}/>
                 </div>
             </div>
         );

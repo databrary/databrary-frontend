@@ -4,20 +4,18 @@
 import config from "../config";
 import axios from "axios";
 
+import {makeErrorSnack, reportError} from "./report";
+
 function userExists(email) {
     return axios.get(
         `${config.domain}/api/user/exists?email=${email}`
     ).then(
-        function (response) {
-            return response.data.data
+        response => response.data.data.exists
+    ).catch(function (error) {
+        if (error.response) {
+            reportError("failed to check userExists", error.response.data.data.errorUuid)
         }
-    ).catch(
-        function (error) {
-            return {
-                status: "error",
-                code: error.response.status,
-                errorUuid: error.response.data.data
-            }
+        return false
         }
     );
 }
@@ -25,20 +23,13 @@ function userExists(email) {
 function getProfile() {
     return axios.get(
         `${config.domain}/profile`,
-        {
-            withCredentials: true
-        }
+        {withCredentials: true}
     ).then(
-        function (response) {
-            return response.data
-        }
+        response => ({status: 'ok', user: response.data.data})
     ).catch(
         function (error) {
-            return {
-                status: "error",
-                code: error.response.status,
-                errorUuid: error.response.data.data
-            }
+            makeErrorSnack(error, "couldn't get profile. Please try again.");
+            return {status: 'error'}
         }
     );
 }
@@ -55,16 +46,11 @@ function logIn(email, password, rememberMe) {
             withCredentials: true
         }
     ).then(
-        function (response) {
-            return response.data
-        }
+        response => ({status: 'ok'})
     ).catch(
         function (error) {
-            return {
-                status: "error",
-                code: error.response.status,
-                errorUuid: error.response.data.data
-            }
+            makeErrorSnack(error, "couldn't login. Please try again.");
+            return {status: 'error'}
         }
     );
 }
@@ -72,21 +58,14 @@ function logIn(email, password, rememberMe) {
 function logOut() {
     return axios.post(
         `${config.domain}/api/user/logout`,
-        {},
-        {
-            withCredentials: true
-        }
+        null,
+        {withCredentials: true}
     ).then(
-        function (response) {
-            return response.data
-        }
+        response => ({status: 'ok'})
     ).catch(
         function (error) {
-            return {
-                status: "error",
-                code: error.response.status,
-                errorUuid: error.response.data.data
-            }
+            makeErrorSnack(error, "couldn't logout. Please clear your cookies.");
+            return {status: 'error'}
         }
     );
 }
@@ -94,29 +73,16 @@ function logOut() {
 function loggedIn() {
     return axios.get(
         `${config.domain}/api/loggedin`,
-        {
-            withCredentials: true
-        }
+        {withCredentials: true}
     ).then(
-        function (response) {
-            return {
-                status: "ok",
-                loggedIn: response.data.data.logged_in
-            }
-        }
+        response => ({status: "ok", loggedIn: response.data.data.logged_in})
     ).catch(
         function (error) {
-            if (error.response.status === 401 || error.response.status === 403) {
-                return {
-                    status: "ok",
-                    loggedIn: false
-                }
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                return false
             } else {
-                return {
-                    status: "error",
-                    code: error.response.status,
-                    errorUuid: error.response.data.data
-                }
+                makeErrorSnack(error, "couldn't check logged in status. Please clear your cookies.");
+                return false
             }
         }
     );
