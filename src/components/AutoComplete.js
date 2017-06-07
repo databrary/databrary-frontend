@@ -5,235 +5,80 @@
 
 import React, {PureComponent} from "react";
 import Autocomplete from "react-md/lib/Autocompletes";
+import config from '../config'
 
-const pastries = [
-    'Aloo pie',
-    'Apple pie',
-    'Apple strudel',
-    'Bakewell pudding',
-    'Baklava',
-    'Bakpia Pathok',
-    'Banbury cake',
-    'Banitsa',
-    'Banket',
-    'Bear claw',
-    'Berliner',
-    'Bethmännchen',
-    'Bichon au citron',
-    'Bierock',
-    'Birnbrot',
-    'Bizcocho',
-    'Börek',
-    'Bossche bol',
-    'Bougatsa',
-    'Boyoz',
-    'Briouat',
-    'Bruttiboni',
-    'Bundevara',
-    'Burek',
-    'Canelé',
-    'Cannoli',
-    'Carac',
-    'Chatti Pathiri',
-    'Cherry pie',
-    'Chorley cake',
-    'Chouquette',
-    'Chou à la crème',
-    'Cinnamon Roll',
-    'Coca',
-    'Conejito',
-    'Cornish pasty',
-    'Conversation',
-    'Coussin de Lyon',
-    'Cream horn',
-    'Crocetta of Caltanissetta',
-    'Croissant',
-    'Cronut',
-    'Croquembouche',
-    'Cuban pastry',
-    'Curry puff',
-    'Dabby-Doughs',
-    'Danish pastry',
-    'Djevrek',
-    'Dutch letter',
-    'Eccles cake',
-    'Éclair',
-    'Empanada',
-    'Ensaïmada',
-    'Fa gao',
-    'Fig roll',
-    'Flaky pastry',
-    'Flaons',
-    'Flies graveyard',
-    'Franzbrötchen',
-    'Galette',
-    'Gâteau Basque',
-    'Gibanica',
-    'Gujiya',
-    'Gözleme',
-    'Gulab jamun',
-    'Gustavus Adolphus pastry',
-    'Gyeongju bread',
-    'Haddekuche',
-    'Hamantash',
-    'Heong Peng',
-    'Jachnun',
-    'Jalebi',
-    'Jesuite',
-    'Joulutorttu',
-    'Kalács',
-    'Kanafeh',
-    'Kifli',
-    'Klobasnek',
-    'Knieküchle',
-    'Kolache',
-    'Kolompeh',
-    'Kołacz',
-    'Komaj sehen',
-    'Kouign-amann',
-    'Krempita',
-    'Kringle',
-    'Kroštule',
-    'Kūčiukai',
-    'Kürtőskalács',
-    'Lattice',
-    'Leipziger Lerche',
-    'Linzer torte',
-    'Lotus seed bun',
-    'Ma\'amoul',
-    'Macarons',
-    'Makroudh',
-    'Malsouka',
-    'Mandelkubb',
-    'Mantecadas',
-    'Marillenknödel',
-    'Marry girl cake',
-    'Mazarin',
-    'Miguelitos',
-    'Milhoja',
-    'Milk-cream strudel',
-    'Mille-feuille',
-    'Mooncake',
-    'Moorkop',
-    'Muskazine',
-    'Nazook',
-    'Nun\'s puffs',
-    'Öçpoçmaq',
-    'Ox-tongue pastry',
-    'Pain au chocolat',
-    'Pain aux raisins',
-    'Palmier',
-    'Pan dulce',
-    'Panzarotti',
-    'Papanași',
-    'Paper wrapped cake',
-    'Paris–Brest',
-    'Pastel',
-    'Pastizz',
-    'Pastry heart',
-    'Pâté Chaud',
-    'Pecan pie',
-    'Filo[clarification needed]',
-    'Pie',
-    'Pineapple bun',
-    'Pionono',
-    'Pithivier',
-    'Plăcintă',
-    'Pogača',
-    'Poppy seed roll',
-    'Pot pie',
-    'Prekmurska gibanica',
-    'Pretzel',
-    'Profiterole',
-    'Puff pastry',
-    'Punsch-roll',
-    'Punschkrapfen',
-    'Qottab',
-    'Quesito',
-    'Remonce',
-    'Rhubarb tart',
-    'Rollò',
-    'Roti tissue',
-    'Roze koek',
-    'Rugelach',
-    'Runeberg\'s torte',
-    'Rustico',
-    'Samosa',
-    'Schaumrolle',
-    'Schnecken',
-    'Schneeball',
-    'Schuxen',
-    'Semla',
-    'Sfenj',
-    'Sfogliatelle',
-    'Shortcrust pastry',
-    'Sou',
-    'Spanakopita',
-    'Spina santa',
-    'Streusel',
-    'Strudel',
-    'Stutenkerl',
-    'Sufganiyah',
-    'Sweetheart cake',
-    'Taiyaki',
-    'Toaster pastry',
-    'Torpil',
-    'Tortell',
-    'Tortita negra',
-    'Trdelník',
-    'Turnover',
-    'Utap',
-    'Vatrushka',
-    'Vetkoek',
-    'Viennoiserie',
-    'Vol-au-vent',
-    'Xuixo',
-    'Zeeuwse bolus',
-    'Zlebia',
-];
-export default class SearchToolbarExample extends PureComponent {
+function waitForSocketConnection(socket, callback) {
+    setTimeout(
+        function () {
+            if (socket.readyState === 1) {
+                // console.log("Connection is made");
+                if (callback !== null) {
+                    callback();
+                }
+
+
+            } else {
+                // console.log("wait for connection...");
+                waitForSocketConnection(socket, callback);
+            }
+
+        }, 5); // wait 5 milisecond for the connection...
+}
+
+export default class AffiliationsAutoComplete extends PureComponent {
     constructor(props) {
         super(props);
-
+        this.webSocket = null;
         this.state = {
-            searching: false,
             value: '',
+            suggestions: [],
         };
 
-        this._showSearch = this._showSearch.bind(this);
-        this._hideSearch = this._hideSearch.bind(this);
-        this._resetSearch = this._resetSearch.bind(this);
         this._handleSearchChange = this._handleSearchChange.bind(this);
+        this._handleAutoComplete = this._handleAutoComplete.bind(this);
+        this._updateSuggestions = this._updateSuggestions.bind(this);
+        this.componentWillUnmount = this.componentWillUnmount.bind(this);
     }
 
-    _showSearch() {
-        this.setState({searching: true});
+    componentWillUnmount() {
+        if (this.webSocket) {
+            this.webSocket.close()
+        }
     }
 
-    _hideSearch() {
-        this.setState({searching: false});
-    }
-
-    _resetSearch() {
-        this.setState({value: ''});
+    _updateSuggestions(response) {
+        let data = JSON.parse(response.data);
+        let unis = data.map(val => val.Target);
+        this.setState({suggestions: unis})
     }
 
     _handleSearchChange(value) {
+        if (!this.webSocket) {
+            this.webSocket = new WebSocket(config.wss + '/api/autocomplete-affil');
+            this.webSocket.onmessage = this._updateSuggestions
+        }
+        waitForSocketConnection(this.webSocket, () => this.webSocket.send(value));
+        this.props.input.onChange(value);
         this.setState({value});
+    }
+
+    _handleAutoComplete(value) {
+        this.props.input.onChange(value);
+        this.setState({value})
     }
 
     render() {
 
         return <Autocomplete
-            id="searchExamle"
-            label="I love cake"
+            id="searchExample"
+            label="Affiliation"
             required
             customSize="title"
             size={10}
             paddedBlock={false}
-            data={pastries}
+            data={this.state.suggestions}
             value={this.state.value}
-            onAutocomplete={this._handleSearchChange}
+            onAutocomplete={this._handleAutoComplete}
             onChange={this._handleSearchChange}
             className="md-cell md-cell--6"
             inputClassName="md-text-field--toolbar"

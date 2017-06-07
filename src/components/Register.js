@@ -2,39 +2,42 @@ import React from "react";
 import {Step, StepButton, Stepper} from "material-ui/Stepper";
 import {Button} from "react-md/lib/Buttons";
 import ExpandTransition from "material-ui/internal/ExpandTransition";
-import TextField from "react-md/lib/TextFields";
 import FormTextField from "./FormTextField";
 import {addSnackToast} from "../redux/actions";
 import {connect} from "react-redux";
-import {Field, reduxForm} from "redux-form";
+import {Field, isValid, reduxForm} from "redux-form";
 import {userExists} from "../api/user";
-import SearchToolbarExample from "./AutoComplete";
+import AffiliationsAutoComplete from "./AutoComplete";
+import Checkbox from "react-md/lib/SelectionControls/Checkbox";
+import config from "../config";
+import Card from 'react-md/lib/Cards/Card';
+import CardText from 'react-md/lib/Cards/CardText';
+import CardActions from 'react-md/lib/Cards/CardActions';
+import Paper from 'react-md/lib/Papers';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-
 const userExist = (values) => {
-    //TODO get ride of sleep
-    return sleep(2000).then(() => userExists(values.email).then((exists) => {
+    return userExists(values.email).then((exists) => {
         if (exists) {
             throw {email: 'That email already exists'}
         }
-    }))
+    })
 };
 
 class AccountForm extends React.Component {
     constructor(props) {
         super(props);
-        this._handleSubmit = this._handleSubmit.bind(this);
-    }
-
-    _handleSubmit() {
-
     }
 
     render() {
         return (
-            <div>
+            <Paper
+                key={1}
+                zDepth={1}
+                // raiseOnHover={i === 0}
+                className="md-background--card"
+            >
                 <div className="md-grid">
                     <Field name="firstName" component={FormTextField} label="First name" customSize="title" size={10}
                            className="md-cell md-cell--6" required/>
@@ -44,116 +47,173 @@ class AccountForm extends React.Component {
                 <div className="md-grid">
                     <Field name="email" component={FormTextField} label="Email" customSize="title" size={10}
                            className="md-cell md-cell--6" required/>
-                    <Field name="affiliation" component={SearchToolbarExample} label="Affiliation" customSize="title"
+                    <Field name="affiliation" component={AffiliationsAutoComplete} label="Affiliation"
+                           customSize="title"
                            size={10} className="md-cell md-cell--6" required/>
                 </div>
+            </Paper>
+        )
+    }
+}
+
+class AgreementForm extends React.Component {
+
+    state = {
+        expanded: false
+    };
+
+    render() {
+        const checkBox = (props) => <Checkbox
+            id="agreeAgreement"
+            name="simpleCheckboxes"
+            label="I have read and understand the Databrary Access Agreement"
+            value={props.input.checked}
+        />;
+
+        return (
+            <div>
+                <Card raise={false} expanded={this.state.expanded} onExpanderClick={() => {
+                    this.setState({expanded: !this.state.expanded})
+                }}>
+                    <div style={{padding: 15}}>
+                        <p>As a member of the Databrary community, you promise to:</p>
+                        <ol>
+                            <li>Treat Databrary data with the same high standard of care that you treat data collected
+                                in your own laboratory.
+                            </li>
+                            <li>Respect participants' wishes about sharing their data just as you do in your lab.</li>
+                            <li>Take care in authorizing other people (affiliates and collaborators) and take
+                                responsibility for their conduct and use of Databrary data, just as you do in your own
+                                lab.
+                            </li>
+                        </ol>
+                    </div>
+                    <CardActions expander>
+                        <Button onClick={() => {
+                            this.setState({expanded: !this.state.expanded})
+                        }} flat label="Read the Databrary Access Agreement"/>
+                    </CardActions>
+                    <CardText expandable>
+                        <embed src={`${config.static}/pdfs/agreement.pdf`} width="100%" height="2100px"/>
+                    </CardText>
+
+                </Card>
+                <Field name="agreement" component={checkBox}/>
             </div>
         )
     }
 }
 
+const ReduxAgreementForm = reduxForm({
+    form: 'agreementForm', // a unique identifier for this form
+    validate, // <--- validation function given to redux-form
+})(AgreementForm);
+
 
 const validate = values => {
     const errors = {};
-    if (!values.password) {
-        errors.password = 'Required'
-    } else if (values.password !== values.confirmPassword) {
-        errors.password = "Passwords don't match"
+    if (!values.firstName) {
+        errors.firstName = 'Required'
     }
 
-    if (!values.confirmPassword) {
-        errors.confirmPassword = 'Required'
-    } else if (values.password !== values.confirmPassword) {
-        errors.confirmPassword = "Passwords don't match"
+    if (!values.lastName) {
+        errors.lastName = 'Required'
+    }
+
+    if (!values.email) {
+        errors.email = 'Required'
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+        errors.email = 'Invalid email address'
+    }
+
+    if (!values.affiliation) {
+        errors.affiliation = 'Required'
+    }
+
+    if (!values.agreement) {
+        errors.agreement = 'Required'
     }
 
     return errors
 };
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        addToast: (toast) => dispatch(addSnackToast(toast))
-    }
-};
 
-const ConnectedAccountForm = connect(null, mapDispatchToProps)(reduxForm({
+const ReduxAccountForm = reduxForm({
     form: 'accountForm', // a unique identifier for this form
     validate, // <--- validation function given to redux-form
     asyncValidate: userExist, // async validation
     asyncBlurFields: ['email']
-})(AccountForm));
+})(AccountForm);
 
-class HorizontalTransition extends React.Component {
+class RegistrationTransition extends React.Component {
 
-    state = {
-        loading: false,
-        finished: false,
-        stepIndex: 0,
-    };
 
-    dummyAsync = (cb) => {
-        this.setState({loading: true}, () => {
-            this.asyncTimer = setTimeout(cb, 500);
-        });
+    constructor(props) {
+        super(props);
+        // this._handleSubmit = this._handleSubmit.bind(this);
+        this.state = {
+            loading: false,
+            finished: false,
+            stepIndex: 0,
+            stepValid: false,
+        };
+
+    }
+
+    _isValid = (stepIndex) => {
+        switch (stepIndex) {
+            case 0:
+                return this.props.isValidAccountForm
+        }
     };
 
     handleNext = () => {
         const {stepIndex} = this.state;
         if (!this.state.loading) {
-            this.dummyAsync(() => this.setState({
+            this.setState({
                 loading: false,
                 stepIndex: stepIndex + 1,
-                finished: stepIndex >= 4,
-            }));
+                finished: stepIndex >= 2,
+            })
         }
     };
 
     handlePrev = () => {
         const {stepIndex} = this.state;
         if (!this.state.loading) {
-            this.dummyAsync(() => this.setState({
+            this.setState({
                 loading: false,
                 stepIndex: stepIndex - 1,
-            }));
+            })
         }
     };
 
     getStepContent(stepIndex) {
         switch (stepIndex) {
             case 0:
-                return <ConnectedAccountForm/>;
+                return <ReduxAccountForm/>;
             case 1:
-                return (
-                    <div>
-                        <TextField style={{marginTop: 0}} label="Ad group name"/>
-                        <p>
-                            Ad group status is different than the statuses for campaigns, ads, and keywords, though the
-                            statuses can affect each other. Ad groups are contained within a campaign, and each campaign
-                            can
-                            have one or more ad groups. Within each ad group are ads, keywords, and bids.
-                        </p>
-                        <p>Something something whatever cool</p>
-                    </div>
-                );
+                return <ReduxAgreementForm/>;
             case 2:
                 return (
-                    <p>
-                        Try out different ad text to see what brings in the most customers, and learn how to
-                        enhance your ads using features like ad extensions. If you run into any problems with your
-                        ads, find out how to tell if they're running and how to resolve approval issues.
-                    </p>
-                );
-            case 3:
-                return (
-                    <p>
-                        adfhsfdkhgsfkljghskfjlghskljfhgskljfhg
-                    </p>
-                );
-            case 4:
-                return (
-                    <p>
-                        adfhsfdkhgsfkljghskfjlghskljfhgskljfhg
-                    </p>
+                    <Paper
+                        key={1}
+                        zDepth={1}
+                        // raiseOnHover={i === 0}
+                        className="md-background--card"
+                    >
+                        <div style={{padding: 15}}>
+                            <header><h2>Stay Tuned</h2>
+                            </header>
+                            <div ><p>Your request for authorization is now pending. We will send you an email
+                                notification after your request for authorization is approved. In the meantime, you can
+                                learn more about how to share data by reading our <a
+                                    href="http://databrary.org/access.html"
+                                    target="_blank">Databrary User
+                                    Guide</a>.</p><p>You can also:<br></br><a href="/profile">View and complete your
+                                profile</a><br></br><a href="/volume">Browse public volumes</a></p></div>
+                        </div>
+                    </Paper>
                 );
             default:
                 return 'You\'re a long way from home sonny jim!';
@@ -187,7 +247,9 @@ class HorizontalTransition extends React.Component {
                 <div style={{textAlign: "center", marginTop: 24, marginBottom: 12}}>
                     <Button raised label="Back" disabled={stepIndex === 0} onClick={this.handlePrev}
                             style={{marginRight: 12}}/>
-                    <Button raised label={stepIndex === 4 ? 'Finish' : 'Next'} primary onClick={this.handleNext}/>
+                    <Button raised label={stepIndex === 2 ? 'Finish' : 'Next'} disabled={this._isValid(stepIndex)}
+                            primary
+                            onClick={this.handleNext}/>
                 </div>
             </div>
         );
@@ -206,22 +268,12 @@ class HorizontalTransition extends React.Component {
                     </Step>
                     <Step>
                         <StepButton onClick={() => this.setState({stepIndex: 1})}>
-                            Create an ad group
+                            Sign Agreement
                         </StepButton>
                     </Step>
                     <Step>
                         <StepButton onClick={() => this.setState({stepIndex: 2})}>
-                            Create an ad
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 3})}>
-                            Create an adadfadfa
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 4})}>
-                            Create an adadfadf43535435
+                            Stay Tuned
                         </StepButton>
                     </Step>
                 </Stepper>
@@ -233,5 +285,12 @@ class HorizontalTransition extends React.Component {
     }
 }
 
+const ConnectedRegistrationTransition = connect(
+    state => ({isValidAccountForm: isValid('accountForm')(state)}),
+    (dispatch) => ({addToast: (toast) => dispatch(addSnackToast(toast))}),
+)(RegistrationTransition);
 
-export default HorizontalTransition;
+export default ConnectedRegistrationTransition;
+
+
+
