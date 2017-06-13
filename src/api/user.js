@@ -49,7 +49,6 @@ function logIn(email, password, rememberMe) {
         response => ({status: 'ok'})
     ).catch(
         function (error) {
-            makeErrorSnack(error, "couldn't login. Please try again.");
             return {status: 'error'}
         }
     );

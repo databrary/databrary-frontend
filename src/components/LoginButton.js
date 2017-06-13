@@ -2,14 +2,13 @@
  * Created by maksim on 5/15/17.
  */
 import Dialog from "react-md/lib/Dialogs";
-import React, {Component, PureComponent} from "react";
+import React, {Component} from "react";
 import TextField from "react-md/lib/TextFields";
 import {Button} from "react-md/lib/Buttons";
 import SelectionControl from "react-md/lib/SelectionControls/SelectionControl";
 import {connect} from "react-redux";
 import {setLoggedIn} from "../redux/actions";
 import {logIn} from "../api/user";
-
 
 class LoginForm extends Component {
     constructor(props) {
@@ -18,6 +17,7 @@ class LoginForm extends Component {
             email: '',
             password: '',
             rememberMe: false,
+            error: ''
         };
 
         this._handleFieldChange = this._handleFieldChange.bind(this);
@@ -42,7 +42,7 @@ class LoginForm extends Component {
                     this.props.setLoggedIn(true);
                     this.props.hideForm();
                 } else if (response.status === "error") {
-                    // do nothing
+                    this.setState({error: 'Incorrect Email/Password.'})
                 } else {
                     throw new Error(`Unexpected response logIn in ${this.__proto__.constructor.name}`)
                 }
@@ -51,21 +51,29 @@ class LoginForm extends Component {
 
     render() {
         return (
+
             <form className="md-grid">
                 <TextField id="email" label="Email" className="md-cell md-cell--12" onChange={this._handleFieldChange}
-                           required/>
+                           required customSize="title" size={10}/>
                 <TextField id="password" label="Password" className="md-cell md-cell--12" type="password"
-                           onChange={this._handleFieldChange}
+                           onChange={this._handleFieldChange} customSize="title" size={10}
                            required/>
                 <footer className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
                         style={{alignItems: 'center', margin: 0}}>
-                    <Button className="md-cell md-cell--12" type="submit" raised label="Login"
+                    <Button primary type="submit" raised label="Login" className="md-cell md-cell--12"
                             onClick={this._handleSubmit}/>
                     <SelectionControl className="md-cell md-cell--12" onChange={this._handleFieldChange}
                                       name="rememberMe"
                                       id="rememberMe" label="Remember Me" type="checkbox"/>
                 </footer>
+                <footer className="md-cell md-cell--12 " style={{alignItems: 'center', margin: 0}}>
+                    {this.state.error ?
+                        <p style={{textAlign: 'center'}}>{this.state.error} <a href="/reset-password">Recover
+                            Password</a></p> : ''}
+
+                </footer>
             </form>
+
         );
     }
 }
@@ -78,11 +86,11 @@ const mapDispatchToProps = (dispatch) => {
 
 const ConnectedLoginForm = connect(null, mapDispatchToProps)(LoginForm);
 
-class LoginDialog extends PureComponent {
+class LoginDialog extends Component {
     render() {
         const {visible, onHide} = this.props;
         return (
-            <Dialog dialogStyle={{width: "auto"}} id="LoginDialog" visible={visible} onHide={onHide}>
+            <Dialog dialogStyle={{width: "30%"}} id="LoginDialog" visible={visible} onHide={onHide}>
                 <ConnectedLoginForm hideForm={onHide}/>
             </Dialog>
         )
@@ -109,7 +117,8 @@ export default class LoginButton extends Component {
         return (
             <Button style={{marginLeft: 5, marginRight: 5}} primary raised key="account_circle" label="Sign in"
                     onClick={this._openDialog}>
-                account_circle<LoginDialog visible={visible} onHide={this._closeDialog}/>
+                account_circle
+                <LoginDialog visible={visible} onHide={this._closeDialog}/>
             </Button>
         );
     }
