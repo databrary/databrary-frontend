@@ -1,0 +1,10 @@
+//// Can't use the nice '~react-md/src/scss/react-md' since this isn't being bundled with webpack
+@import '../../node_modules/react-md/src/scss/react-md';
+//
+//// Variable overrides
+//
+$md-list-desktop-font-size: 16;
+$md-primary-color: $md-teal-500;
+$md-secondary-color: $md-lime-a-400;
+//$md-drawer-z-index: 17;
+@include react-md-everything;

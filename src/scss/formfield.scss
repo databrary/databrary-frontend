@@ -1,0 +1,7 @@
+@import './globals';
+
+.my-circle-progress {
+  @include react-md-theme-progress-circular($md-orange-a-700);
+}
+
+

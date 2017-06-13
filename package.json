@@ -4,28 +4,59 @@
   "private": true,
   "description": "An example usage of react-md and create-react-app.",
   "dependencies": {
+    "axios": "^0.16.1",
+    "classnames": "^2.2.5",
+    "eslint": "^3.19.0",
+    "history": "^4.6.1",
+    "material-ui": "^0.18.1",
     "node-sass": "^4.5.2",
     "npm-run-all": "^4.0.2",
+    "query-string": "^4.3.4",
     "react": "^15.5.4",
     "react-addons-css-transition-group": "^15.5.2",
     "react-addons-transition-group": "^15.5.2",
     "react-dom": "^15.5.4",
+    "react-dropzone": "^3.13.2",
     "react-md": "*",
     "react-redux": "^5.0.4",
     "react-router-dom": "^4.1.1",
+    "react-router-redux": "^4.0.8",
+    "react-tap-event-plugin": "^2.0.1",
+    "react-waypoint": "^7.0.3",
     "redux": "^3.6.0",
-    "webfontloader": "^1.6.27"
+    "redux-form": "^6.7.0",
+    "universal-cookie": "^2.0.7",
+    "webfontloader": "^1.6.27",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
-    "react-scripts": "0.9.5"
+    "eslint-plugin-react": "^7.0.0",
+    "react-scripts": "1.0.0"
   },
   "scripts": {
-    "build-css": "node-sass src/ -o src/",
-    "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",
+    "build-css": "node-sass src/scss -o src/scss",
+    "watch-css": "npm run build-css && node-sass src/scss -o src/scss --watch --recursive",
     "start-js": "react-scripts start",
     "start": "npm-run-all -p watch-css start-js",
     "build": "npm run build-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "plugins": [
+      "react"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "jsx": true,
+        "modules": true
+      }
+    }
   }
 }
