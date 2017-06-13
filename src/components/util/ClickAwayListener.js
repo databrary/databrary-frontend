@@ -1,7 +1,8 @@
 /**
  * Created by maksim on 6/13/17.
  */
-import {Component, PropTypes} from 'react';
+import {Component} from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import events from './events';
 

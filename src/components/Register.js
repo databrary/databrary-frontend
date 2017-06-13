@@ -17,8 +17,6 @@ import Paper from 'react-md/lib/Papers';
 import {withRouter} from "react-router";
 import '../scss/dropZone.css'
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
 const userExist = (values) => {
     return userExists(values.email).then((exists) => {
         if (exists) {

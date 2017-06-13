@@ -157,7 +157,7 @@ class PasswordForm extends React.Component {
                             style={{alignItems: 'center', margin: 0}}
                         >
                             <Button disabled={!valid || pristine || submitting} className="md-cell md-cell--12"
-                                    type="submit"
+                                    type="submit" primary
                                     raised label="Reset Password"
                                     onClick={handleSubmit(this._handleSubmitReset)}/>
                         </div>
@@ -207,7 +207,7 @@ class EmailForm extends React.Component {
                         style={{alignItems: 'center', margin: 0}}
                     >
                         <Button disabled={!valid || pristine || submitting} className="md-cell md-cell--12"
-                                type="submit"
+                                type="submit" primary
                                 raised label="Send request"
                                 onClick={handleSubmit(this._handleSubmitRequest)}/>
                     </footer>

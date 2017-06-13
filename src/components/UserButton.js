@@ -25,6 +25,10 @@ class LoggedInButton extends PureComponent {
         })
     }
 
+    _profile = () => {
+        this.props.history.push("/profile");
+    };
+
     render() {
         return (
             <MenuButton
@@ -34,7 +38,7 @@ class LoggedInButton extends PureComponent {
                 id="loggedin-menu"
                 buttonChildren="account_circle"
             >
-                <ListItem onClick={this.open} primaryText="My Account"/>
+                <ListItem onClick={this._profile} primaryText="My Account"/>
                 <ListItem onClick={this._logOut} primaryText="Logout"/>
             </MenuButton>
         );
@@ -67,6 +71,6 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(
+export default withRouter(connect(
     mapStateToProps
-)(UserButton);
+)(UserButton));

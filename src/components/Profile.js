@@ -24,7 +24,7 @@ class Profile extends Component {
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
         if (this.props.loggedIn) {
             getProfile().then(
                 function (response) {
@@ -43,7 +43,7 @@ class Profile extends Component {
     render() {
 
         return (
-            <Card style={{maxWidth: 600}} className="md-block-centered">
+            <Card style={{maxWidth: 600, marginTop: '10%'}} className="md-block-centered">
                 <Media>
                     <img src={`https://nyu.databrary.org/party/${this.state.party_id}/avatar?size=500`}
                          alt="presentation"/>
@@ -55,7 +55,7 @@ class Profile extends Component {
                 </Media>
                 <CardTitle
                     avatar={<Avatar src="https://unsplash.it/40/40?random&time=1495035933387" alt="presentation"/>}
-                    title={this.state.party_affiliation}
+                    title={this.state.party_affiliation ? this.state.party_affiliation : ''}
                     subtitle={this.state.party_id}
                 />
                 <CardActions expander>

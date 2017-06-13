@@ -37,7 +37,7 @@ class ConfirmEmailPassword extends PasswordForm {
                 className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
                 style={{alignItems: 'center', margin: 0}}
             >
-                <Button className="md-cell md-cell--12" type="submit" raised label="Recover"
+                <Button className="md-cell md-cell--12" type="submit" raised label="Recover" primary
                         onClick={function () {
                             this.props.history.push("/reset-password")
                         }.bind(this)}/>
