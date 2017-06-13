@@ -37,4 +37,22 @@ function resetPasswordToken(token, password) {
     )
 }
 
-export {resetPasswordEmail, resetPasswordToken}
+function checkTokenExpiry(token) {
+    return axios.post(
+        `${config.domain}/api/user/check-token`,
+        {"token": token}
+    ).then(
+        () => ({status: 'ok'})
+    ).catch(
+        function (error) {
+            if (error.response && error.response.status === 403) {
+                return {status: "expired"}
+            } else {
+                makeErrorSnack(error, "couldn't submit check-token token");
+                return {status: 'error'}
+            }
+        }
+    )
+}
+
+export {resetPasswordEmail, checkTokenExpiry, resetPasswordToken}

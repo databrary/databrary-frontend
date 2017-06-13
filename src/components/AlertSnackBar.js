@@ -6,7 +6,7 @@ import React from "react";
 import {connect} from "react-redux";
 import Snackbar from "react-md/lib/Snackbars";
 import {removeSnackToast} from "../redux/actions";
-
+import ClickAwayListener from './util/ClickAwayListener'
 class AlertBar extends React.Component {
     constructor(props) {
         super(props);
@@ -26,7 +26,9 @@ class AlertBar extends React.Component {
 
     render() {
         return (
-            <Snackbar {...this.state} toasts={this.props.toasts} onDismiss={this._removeToast}/>
+            <ClickAwayListener onClickAway={this._removeToast}>
+                <Snackbar {...this.state} toasts={this.props.toasts} onDismiss={this._removeToast}/>
+            </ClickAwayListener>
         )
     }
 }

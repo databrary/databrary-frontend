@@ -6,25 +6,17 @@ import React from "react";
 import Paper from "react-md/lib/Papers";
 import "../scss/resetPassword.css";
 
-import {resetPasswordEmail, resetPasswordToken} from "../api/resetpassword";
+import {resetPasswordEmail, resetPasswordToken, checkTokenExpiry} from "../api/resetpassword";
 import {Button} from "react-md/lib/Buttons";
 import queryString from "query-string";
 import {withRouter} from "react-router";
 import {connect} from "react-redux";
-import {addSnackToast} from "../redux/actions";
 import {Field, reduxForm, SubmissionError as FormSubmissionError} from "redux-form";
 import {Route, Switch} from "react-router-dom";
 import zxcvbn from "zxcvbn";
 import FormTextField from "./FormTextField";
 
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        addToast: (toast) => dispatch(addSnackToast(toast))
-    }
-};
-
-const validate = values => {
+const validatePassword = values => {
     const errors = {};
     if (!values.password) {
         errors.password = 'Required'
@@ -67,6 +59,21 @@ class PasswordForm extends React.Component {
         });
     }
 
+    componentWillMount() {
+        checkTokenExpiry(this.state.token).then(
+            function (response) {
+                if (response.status === "ok") {
+                    // do nothing because form updates state
+                } else if (response.status === "expired") {
+                    this.setState({expired: true})
+                } else if (response.status === "error") {
+                    throw new FormSubmissionError({_error: ""})
+                } else {
+                    throw new Error(`Unexpected response checkTokenExpiry in ${this.__proto__.constructor.name}`)
+                }
+            }.bind(this))
+    }
+
     _handleSubmitReset(formData) {
         resetPasswordToken(this.state.token, formData.password).then(
             function (response) {
@@ -75,7 +82,7 @@ class PasswordForm extends React.Component {
                 } else if (response.status === "expired") {
                     this.setState({expired: true})
                 } else if (response.status === "error") {
-                    return FormSubmissionError
+                    throw new FormSubmissionError({_error: ""})
                 } else {
                     throw new Error(`Unexpected response resetPasswordToken in ${this.__proto__.constructor.name}`)
                 }
@@ -128,10 +135,9 @@ class PasswordForm extends React.Component {
                     // i have no idea why if you remove this and stretch the window the form is shrunken
                     <form style={{minWidth: 217}} onSubmit={handleSubmit(this._handleSubmitReset)}>
                         <Field name="password" type="password" onchange={this._onChange} component={FormTextField}
-                               label="Password" required/>
+                               customSize="title" size={10} label="Password" required/>
                         <Field name="confirmPassword" type="password" component={FormTextField} label="Confirm Password"
-                               required/>
-                        {/* this is terrible but i have no idea what i'm doing */}
+                               customSize="title" size={10} required/>
                         <div
                             className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
                             style={{alignItems: 'center', margin: 0, justifyContent: 'center'}}
@@ -150,7 +156,6 @@ class PasswordForm extends React.Component {
                             className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
                             style={{alignItems: 'center', margin: 0}}
                         >
-
                             <Button disabled={!valid || pristine || submitting} className="md-cell md-cell--12"
                                     type="submit"
                                     raised label="Reset Password"
@@ -160,9 +165,9 @@ class PasswordForm extends React.Component {
         )
     }
 }
-const ConnectedPasswordForm = connect(null, mapDispatchToProps)(reduxForm({
+const ConnectedPasswordForm = connect()(reduxForm({
     form: 'passwordForm', // a unique identifier for this form
-    validate, // <--- validation function given to redux-form
+    validate: validatePassword, // <--- validation function given to redux-form
 })(PasswordForm));
 
 
@@ -196,7 +201,7 @@ class EmailForm extends React.Component {
             submitSucceeded ? <div>Request submitted. Please check your email.</div> :
                 <form style={{minWidth: 217}} onSubmit={handleSubmit(this._handleSubmitRequest)}>
                     <Field name="email" type="email" component={FormTextField} label="Email"
-                           validate={[email, required]} required/>
+                           customSize="title" size={10} validate={[email, required]} required/>
                     <footer
                         className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
                         style={{alignItems: 'center', margin: 0}}
@@ -211,7 +216,7 @@ class EmailForm extends React.Component {
     }
 }
 
-const ConnectedEmailForm = connect(null, mapDispatchToProps)(reduxForm({
+const ConnectedEmailForm = connect()(reduxForm({
     form: 'emailForm', // a unique identifier for this form
 })(EmailForm));
 
@@ -238,5 +243,5 @@ class ResetPassword extends React.Component {
 }
 
 
-const connectedResetPassword = connect(null, mapDispatchToProps)(ResetPassword);
-export default withRouter(connectedResetPassword)
+const ConnectedResetPassword = withRouter(connect()(ResetPassword));
+export {ConnectedResetPassword, PasswordForm, validatePassword}

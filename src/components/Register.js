@@ -5,8 +5,8 @@ import ExpandTransition from "material-ui/internal/ExpandTransition";
 import FormTextField from "./FormTextField";
 import {addSnackToast} from "../redux/actions";
 import {connect} from "react-redux";
-import {Field, isValid, reduxForm} from "redux-form";
-import {userExists} from "../api/user";
+import {Field, isValid, isDirty, reduxForm, getFormValues} from "redux-form";
+import {userExists, register} from "../api/user";
 import AffiliationsAutoComplete from "./AutoComplete";
 import Checkbox from "react-md/lib/SelectionControls/Checkbox";
 import config from "../config";
@@ -14,6 +14,8 @@ import Card from 'react-md/lib/Cards/Card';
 import CardText from 'react-md/lib/Cards/CardText';
 import CardActions from 'react-md/lib/Cards/CardActions';
 import Paper from 'react-md/lib/Papers';
+import {withRouter} from "react-router";
+import '../scss/dropZone.css'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -26,30 +28,32 @@ const userExist = (values) => {
 };
 
 class AccountForm extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
-            <Paper
-                key={1}
-                zDepth={1}
-                // raiseOnHover={i === 0}
-                className="md-background--card"
-            >
+            <Paper key={1} zDepth={1} className="md-background--card">
                 <div className="md-grid">
-                    <Field name="firstName" component={FormTextField} label="First name" customSize="title" size={10}
+                    <Field name="firstName" initValue={this.props.inits ? this.props.inits.firstName : null}
+                           component={FormTextField} label="First name" customSize="title" size={10}
                            className="md-cell md-cell--6" required/>
-                    <Field name="lastName" component={FormTextField} label="Last name" customSize="title" size={10}
+                    <Field name="lastName" initValue={this.props.inits ? this.props.inits.lastName : null}
+                           component={FormTextField} label="Last name" customSize="title" size={10}
                            className="md-cell md-cell--6" required/>
                 </div>
                 <div className="md-grid">
-                    <Field name="email" component={FormTextField} label="Email" customSize="title" size={10}
+                    <Field name="email" initValue={this.props.inits ? this.props.inits.email : null}
+                           component={FormTextField} label="Email" customSize="title" size={10}
                            className="md-cell md-cell--6" required/>
-                    <Field name="affiliation" component={AffiliationsAutoComplete} label="Affiliation"
-                           customSize="title"
-                           size={10} className="md-cell md-cell--6" required/>
+                    <Field name="affiliation" initValue={this.props.inits ? this.props.inits.affiliation : null}
+                           component={AffiliationsAutoComplete} label="Affiliation"
+                           customSize="title" size={10} className="md-cell md-cell--6" required/>
+                </div>
+                <div className="md-grid">
+                    <Field name="orcid" initValue={this.props.inits ? this.props.inits.orcid : null}
+                           component={FormTextField} label="ORCID" customSize="title" size={10}
+                           className="md-cell md-cell--6" normalize={(val) => val.replace(/\D/g, '')}/>
+                    <Field name="homepage" initValue={this.props.inits ? this.props.inits.homepage : null}
+                           component={FormTextField} label="Homepage"
+                           customSize="title" size={10} className="md-cell md-cell--6"/>
                 </div>
             </Paper>
         )
@@ -59,22 +63,28 @@ class AccountForm extends React.Component {
 class AgreementForm extends React.Component {
 
     state = {
-        expanded: false
+        expanded: false,
+        checked: false,
     };
 
     render() {
-        const checkBox = (props) => <Checkbox
+        const checkBox = () => <Checkbox
             id="agreeAgreement"
             name="simpleCheckboxes"
             label="I have read and understand the Databrary Access Agreement"
-            value={props.input.checked}
+            checked={this.state.checked}
+            onChange={function (val) {
+                this.props.change('agreement', val);
+                this.setState({checked: val});
+            }.bind(this)}
         />;
 
         return (
             <div>
-                <Card raise={false} expanded={this.state.expanded} onExpanderClick={() => {
-                    this.setState({expanded: !this.state.expanded})
-                }}>
+                <Card raise={false} expanded={this.state.expanded}
+                      onExpanderClick={() => {
+                          this.setState({expanded: !this.state.expanded})
+                      }}>
                     <div style={{padding: 15}}>
                         <p>As a member of the Databrary community, you promise to:</p>
                         <ol>
@@ -91,26 +101,52 @@ class AgreementForm extends React.Component {
                     <CardActions expander>
                         <Button onClick={() => {
                             this.setState({expanded: !this.state.expanded})
-                        }} flat label="Read the Databrary Access Agreement"/>
+                        }}
+                                flat label="Read the Databrary Access Agreement"/>
                     </CardActions>
                     <CardText expandable>
                         <embed src={`${config.static}/pdfs/agreement.pdf`} width="100%" height="2100px"/>
                     </CardText>
-
                 </Card>
-                <Field name="agreement" component={checkBox}/>
+                <Field name="agreement" validate={[(val) => (val === true ? undefined : 'Required')]}
+                       component={checkBox}/>
             </div>
         )
     }
 }
 
-const ReduxAgreementForm = reduxForm({
-    form: 'agreementForm', // a unique identifier for this form
-    validate, // <--- validation function given to redux-form
-})(AgreementForm);
+const confirmationForm = () => (
+    <Paper key={1} zDepth={1} className="md-background--card">
+        <div style={{padding: 15}}>
+            <header><h2>Confirmation Email</h2></header>
+            <div>
+                <p>
+                    We've sent you an email confirmation form. Please confirm your email address
+                </p>
+            </div>
+        </div>
+    </Paper>
+);
 
+function orcidCheckSum(baseDigits) {
+    if (baseDigits !== undefined) {
+        let total = 0;
+        let i;
+        let checkDigit = baseDigits[baseDigits.length - 1] === 'X' || baseDigits[baseDigits.length - 1] === 'x' ?
+            10 : parseInt(baseDigits[baseDigits.length - 1], 10);
+        for (i = 0; i < baseDigits.length - 1; i++) {
+            let digit = parseInt(baseDigits[i], 10);
+            total = (total + digit) * 2;
+        }
+        let remainder = total % 11;
+        let result = (12 - remainder) % 11;
+        return result === checkDigit
+    } else {
+        return true
+    }
+}
 
-const validate = values => {
+const validateAccount = values => {
     const errors = {};
     if (!values.firstName) {
         errors.firstName = 'Required'
@@ -130,154 +166,103 @@ const validate = values => {
         errors.affiliation = 'Required'
     }
 
-    if (!values.agreement) {
-        errors.agreement = 'Required'
+    if (!orcidCheckSum(values.orcid)) {
+        errors.orcid = 'Malformed'
     }
 
     return errors
 };
 
+const ReduxAgreementForm = reduxForm({
+    form: 'agreementForm',
+})(AgreementForm);
 
 const ReduxAccountForm = reduxForm({
-    form: 'accountForm', // a unique identifier for this form
-    validate, // <--- validation function given to redux-form
-    asyncValidate: userExist, // async validation
+    form: 'accountForm',
+    validate: validateAccount,
+    asyncValidate: userExist,
     asyncBlurFields: ['email']
 })(AccountForm);
 
 class RegistrationTransition extends React.Component {
-
-
     constructor(props) {
         super(props);
-        // this._handleSubmit = this._handleSubmit.bind(this);
         this.state = {
-            loading: false,
-            finished: false,
             stepIndex: 0,
-            stepValid: false,
+            accountForm: null,
         };
-
     }
 
-    _isValid = (stepIndex) => {
+    _handleSubmitAll = () => {
+        register(this.state.accountForm).then(
+            response => {
+                if (response.status === 'ok') {
+                    this.setState({stepIndex: this.state.stepIndex + 1})
+                } else {
+                    this._handlePrev()
+                }
+            }
+        );
+    };
+
+    _handleSubmitAccountForm = () => {
+        this.setState({
+            stepIndex: this.state.stepIndex + 1,
+            accountForm: this.props.accountForm,
+        });
+    };
+
+    _handlePrev = () => {
+        const {stepIndex} = this.state;
+        this.setState({
+            stepIndex: stepIndex - 1,
+        });
+    };
+
+    _getStepContent(stepIndex) {
         switch (stepIndex) {
             case 0:
-                return this.props.isValidAccountForm
-        }
-    };
-
-    handleNext = () => {
-        const {stepIndex} = this.state;
-        if (!this.state.loading) {
-            this.setState({
-                loading: false,
-                stepIndex: stepIndex + 1,
-                finished: stepIndex >= 2,
-            })
-        }
-    };
-
-    handlePrev = () => {
-        const {stepIndex} = this.state;
-        if (!this.state.loading) {
-            this.setState({
-                loading: false,
-                stepIndex: stepIndex - 1,
-            })
-        }
-    };
-
-    getStepContent(stepIndex) {
-        switch (stepIndex) {
-            case 0:
-                return <ReduxAccountForm/>;
+                return <ReduxAccountForm inits={this.state.accountForm}/>;
             case 1:
                 return <ReduxAgreementForm/>;
             case 2:
-                return (
-                    <Paper
-                        key={1}
-                        zDepth={1}
-                        // raiseOnHover={i === 0}
-                        className="md-background--card"
-                    >
-                        <div style={{padding: 15}}>
-                            <header><h2>Stay Tuned</h2>
-                            </header>
-                            <div ><p>Your request for authorization is now pending. We will send you an email
-                                notification after your request for authorization is approved. In the meantime, you can
-                                learn more about how to share data by reading our <a
-                                    href="http://databrary.org/access.html"
-                                    target="_blank">Databrary User
-                                    Guide</a>.</p><p>You can also:<br></br><a href="/profile">View and complete your
-                                profile</a><br></br><a href="/volume">Browse public volumes</a></p></div>
-                        </div>
-                    </Paper>
-                );
+                return confirmationForm();
             default:
                 return 'You\'re a long way from home sonny jim!';
         }
     }
 
     renderContent() {
-        const {finished, stepIndex} = this.state;
+        const {stepIndex} = this.state;
         const contentStyle = {margin: '0 16px'};
-
-        if (finished) {
-            return (
-                <div style={contentStyle}>
-                    <p>
-                        <a
-                            onClick={(event) => {
-                                event.preventDefault();
-                                this.setState({stepIndex: 0, finished: false});
-                            }}
-                        >
-                            Click here
-                        </a> to reset the example.
-                    </p>
-                </div>
-            );
-        }
-
+        const disabled = !([this.props.isValidAccountForm, this.props.isValidAgreementForm, true][stepIndex]);
+        const buttonActions = [this._handleSubmitAccountForm, this._handleSubmitAll, () => this.props.history.push("/")];
+        const buttonLabels = ['Next', 'Submit', 'Finish'];
+        const buttonLabel = buttonLabels[stepIndex];
+        const nextButtonAction = buttonActions[stepIndex];
         return (
             <div style={contentStyle}>
-                <div>{this.getStepContent(stepIndex)}</div>
+                <div>{this._getStepContent(stepIndex)}</div>
                 <div style={{textAlign: "center", marginTop: 24, marginBottom: 12}}>
-                    <Button raised label="Back" disabled={stepIndex === 0} onClick={this.handlePrev}
+                    <Button raised label="Back" disabled={stepIndex === 0 || stepIndex === 2} onClick={this._handlePrev}
                             style={{marginRight: 12}}/>
-                    <Button raised label={stepIndex === 2 ? 'Finish' : 'Next'} disabled={this._isValid(stepIndex)}
-                            primary
-                            onClick={this.handleNext}/>
+                    <Button raised label={buttonLabel} disabled={disabled} primary onClick={nextButtonAction}/>
                 </div>
             </div>
         );
     }
 
     render() {
-        const {loading, stepIndex} = this.state;
+        const {stepIndex} = this.state;
 
         return (
             <div style={{width: '80%', maxWidth: 'auto', margin: 'auto'}}>
                 <Stepper linear={false} activeStep={stepIndex}>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 0})}>
-                            Create Account
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 1})}>
-                            Sign Agreement
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 2})}>
-                            Stay Tuned
-                        </StepButton>
-                    </Step>
+                    <Step><StepButton>Create Account</StepButton></Step>
+                    <Step><StepButton>Sign Agreement</StepButton></Step>
+                    <Step><StepButton>Stay Tuned</StepButton></Step>
                 </Stepper>
-                <ExpandTransition loading={loading} open={true} style={{overflow: 'visible'}}>
+                <ExpandTransition open={true} style={{overflow: 'visible'}}>
                     {this.renderContent()}
                 </ExpandTransition>
             </div>
@@ -286,11 +271,15 @@ class RegistrationTransition extends React.Component {
 }
 
 const ConnectedRegistrationTransition = connect(
-    state => ({isValidAccountForm: isValid('accountForm')(state)}),
+    state => ({
+        isValidAccountForm: isValid('accountForm')(state) && isDirty('accountForm'),
+        isValidAgreementForm: isValid('agreementForm')(state) && isDirty('agreementForm'),
+        accountForm: getFormValues('accountForm')(state),
+    }),
     (dispatch) => ({addToast: (toast) => dispatch(addSnackToast(toast))}),
 )(RegistrationTransition);
 
-export default ConnectedRegistrationTransition;
+export default withRouter(ConnectedRegistrationTransition);
 
 
 

@@ -1,4 +1,4 @@
-let addr = "172.22.236.163";
+let addr = "localhost";
 
 let domainPort = "3444";
 let staticPort = "3444";

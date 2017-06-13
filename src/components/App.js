@@ -9,7 +9,9 @@ import the404Page from "./the404Page";
 import Home from "./Home";
 import {addSnackToast, setLoggedIn} from "../redux/actions";
 import {loggedIn} from "../api/user";
-import ResetPassword from "./ResetPassword";
+import {ConnectedResetPassword as ResetPassword} from "./ResetPassword";
+import AccountConfirmation from './ConfirmEmail'
+
 import FontIcon from "react-md/lib/FontIcons";
 const navItems = [{
     primaryText: 'Home',
@@ -54,15 +56,6 @@ class App extends Component {
     }
 
     render() {
-        // const selectField = (
-        //     <SelectField
-        //         id="disabledNumbers"
-        //         label="Disabled"
-        //         defaultValue={1}
-        //         menuItems={["adfffffffffffffffffffffffffff","adffffffffffffffffffffffffff", "fffffffffffffffffffffffffffffffffff"]}
-        //         className="md-cell"
-        //     />
-        // );
         const signUpButton = (
             <Button
                 style={{marginLeft: 5, marginRight: 5}}
@@ -108,6 +101,9 @@ class App extends Component {
                                         {this.props.loggedIn ? null :
                                             <Route exact path="/user/register" location={location}
                                                    render={() => this.state.lazyRegister || <h2>Loading...</h2>}/>}
+                                        {this.props.loggedIn ? null :
+                                            <Route exact path="/user/confirm-email" location={location}
+                                                   render={() => <AccountConfirmation/> || <h2>Loading...</h2>}/>}
                                         {this.props.loggedIn ?
                                             <Route exact path="/profile" location={location}
                                                    render={() => this.state.lazyProfile ||

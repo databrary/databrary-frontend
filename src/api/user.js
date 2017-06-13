@@ -88,4 +88,19 @@ function loggedIn() {
     );
 }
 
-export {userExists, getProfile, logIn, logOut, loggedIn}
+function register(account) {
+    return axios.post(
+        `${config.domain}/api/user/register`,
+        account
+    ).then(
+        response => ({status: 'ok'})
+    ).catch(
+        function (error) {
+            makeErrorSnack(error, "couldn't register. Please Try again.");
+            return {status: 'error'}
+        }
+    );
+}
+
+
+export {register, userExists, getProfile, logIn, logOut, loggedIn}

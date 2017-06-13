@@ -40,6 +40,14 @@ export default class AffiliationsAutoComplete extends PureComponent {
         this.componentWillUnmount = this.componentWillUnmount.bind(this);
     }
 
+    componentWillMount() {
+        let initValue = this.props.initValue;
+        if (initValue !== null) {
+            this.setState({value: initValue});
+            this.props.input.onChange(initValue);
+        }
+    }
+
     componentWillUnmount() {
         if (this.webSocket) {
             this.webSocket.close()
@@ -75,7 +83,9 @@ export default class AffiliationsAutoComplete extends PureComponent {
             required
             customSize="title"
             size={10}
+            errorText={this.props.meta.error}
             paddedBlock={false}
+            error={this.props.meta.dirty && Boolean(this.props.meta.error)}
             data={this.state.suggestions}
             value={this.state.value}
             onAutocomplete={this._handleAutoComplete}
