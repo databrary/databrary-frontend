@@ -270,8 +270,8 @@ class RegistrationTransition extends React.Component {
 
 const ConnectedRegistrationTransition = connect(
     state => ({
-        isValidAccountForm: isValid('accountForm')(state) && isDirty('accountForm'),
-        isValidAgreementForm: isValid('agreementForm')(state) && isDirty('agreementForm'),
+        isValidAccountForm: isValid('accountForm')(state) && isDirty('accountForm')(state),
+        isValidAgreementForm: isValid('agreementForm')(state) && isDirty('agreementForm')(state),
         accountForm: getFormValues('accountForm')(state),
     }),
     (dispatch) => ({addToast: (toast) => dispatch(addSnackToast(toast))}),
