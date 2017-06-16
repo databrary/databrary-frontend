@@ -39,7 +39,7 @@ function snackBar(state = initialSnackBarState, actin) {
                 toasts
             };
         case REMOVE_SNACK_TOAST:
-            toasts.pop();
+            toasts.shift();
             return {
                 toasts
             };
