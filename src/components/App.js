@@ -49,8 +49,8 @@ class App extends Component {
             action: {
                 label: 'Retry',
                 onClick: () => {
-                    alert('You tried again for some reason..'); // eslint-disable-line no-alert
-                },
+                    console.log("hello")
+                }
             },
         });
     }

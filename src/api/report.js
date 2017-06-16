@@ -7,7 +7,7 @@ import {store} from "../redux/store";
 import {addSnackToast} from "../redux/actions";
 
 function reportError(msg, uuid) {
-    axios.post(
+    return axios.post(
         `${config.domain}/api/report-error`,
         {
             msg,
@@ -27,8 +27,20 @@ function makeErrorSnack(error, text) {
             {
                 label: 'Report',
                 onClick: () => {
-                    reportError("failed to verify log in status", error.response && error.response.data.data.errorUuid)
+                    reportError(`${text}`, error.response.data.data).catch(
+                        (err) => {
+                            let anotherSnack = {
+                                text: `Sending report failed. Please email error@databrary.org and with these two codes: 
+                                ${error.response.data.data}, ${err.response.data.data}`,
+                                action: 'OK'
+                            };
+                            setTimeout(() => {
+                                store.dispatch(addSnackToast(anotherSnack));
+                            }, 500);
+                        }
+                    )
                 },
+                closeButton: true,
             }
             : 'Ok',
     };
