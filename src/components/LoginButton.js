@@ -10,7 +10,7 @@ import {connect} from "react-redux";
 import {setLoggedIn} from "../redux/actions";
 import {logIn} from "../api/user";
 
-class LoginForm extends Component {
+export class LoginForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -60,7 +60,7 @@ class LoginForm extends Component {
                            required/>
                 <footer className="md-cell md-cell--12 md-dialog-footer md-dialog-footer--inline"
                         style={{alignItems: 'center', margin: 0}}>
-                    <Button primary type="submit" raised label="Login" className="md-cell md-cell--12"
+                    <Button primary type="submit" raised label="Log In" className="md-cell md-cell--12"
                             onClick={this._handleSubmit}/>
                     <SelectionControl className="md-cell md-cell--12" onChange={this._handleFieldChange}
                                       name="rememberMe"
@@ -97,7 +97,7 @@ class LoginDialog extends Component {
     }
 }
 
-export default class LoginButton extends Component {
+export class LoginButton extends Component {
     constructor(props) {
         super(props);
 
@@ -115,7 +115,7 @@ export default class LoginButton extends Component {
     render() {
         const {visible} = this.state;
         return (
-            <Button style={{marginLeft: 5, marginRight: 5}} primary raised key="account_circle" label="Sign in"
+            <Button style={{marginLeft: 5, marginRight: 5}} primary raised key="account_circle" label="Log In"
                     onClick={this._openDialog}>
                 account_circle
                 <LoginDialog visible={visible} onHide={this._closeDialog}/>

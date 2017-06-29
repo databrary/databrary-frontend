@@ -3,7 +3,7 @@
  */
 import React, {PureComponent} from "react";
 import {connect} from "react-redux";
-import LoginButton from "./LoginButton";
+import {LoginButton} from "./LoginButton";
 
 import ListItem from "react-md/lib/Lists/ListItem";
 import MenuButton from "react-md/lib/Menus/MenuButton";

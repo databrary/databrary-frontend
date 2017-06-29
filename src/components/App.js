@@ -16,12 +16,14 @@ import FontIcon from "react-md/lib/FontIcons";
 const navItems = [{
     primaryText: 'Home',
     to: '/home',
-    leftIcon: <FontIcon>home</FontIcon>,
+    loggedIn: false,
+}, {
+    primaryText: 'News',
+    to: 'https://www.databrary.org/news.html',
     loggedIn: false,
 }, {
     primaryText: 'Profile',
     to: '/profile',
-    leftIcon: <FontIcon>account_circle</FontIcon>,
     loggedIn: true,
 }];
 
@@ -48,9 +50,9 @@ class App extends Component {
             text: 'Connection timed out. Showing limited messages.',
             action: {
                 label: 'Retry',
-                onClick: () => {
-                    console.log("hello")
-                }
+                // onClick: () => {
+                //     console.log("hello")
+                // }
             },
         });
     }
@@ -61,12 +63,19 @@ class App extends Component {
                 style={{marginLeft: 5, marginRight: 5}}
                 raised
                 primary
-                label="Sign up"
+                label="Register"
                 onClick={() => this.props.history.push("/user/register")}
             />
         );
         const userButton = <UserButton/>;
-        const testSnackbar = <Button raised label="Toast Hello, World" onClick={this._toastHello.bind(this)}/>;
+        //const testSnackbar = <Button raised label="Toast Hello, World" onClick={this._toastHello.bind(this)}/>;
+        const logoImage = (
+            <img
+                style={{width:260}}
+                alt="Databrary"
+                src="https://nyu.databrary.org/web/images/logo/databrary-nav.svg"
+            />
+        );
         return (
             <Switch>
                 <Route path="/reset-password" component={ResetPassword}/>
@@ -75,12 +84,11 @@ class App extends Component {
                         function ({location}) {
                             return (
                                 <NavigationDrawer
-                                    mobileDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY_MINI}
-                                    tabletDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY_MINI}
-                                    desktopDrawerType={NavigationDrawer.DrawerTypes.TEMPORARY_MINI}
-                                    drawerTitle="Databrary"
-                                    toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton, testSnackbar]}
-                                    toolbarTitle="Databrary"
+                                    mobileDrawerType={NavigationDrawer.DrawerTypes.FULLHEIGHT}
+                                    tabletDrawerType={NavigationDrawer.DrawerTypes.FULLHEIGHT}
+                                    desktopDrawerType={NavigationDrawer.DrawerTypes.FULLHEIGHT}
+                                    toolbarTitle={logoImage}
+                                    toolbarActions={[this.props.loggedIn ? null : signUpButton, userButton]}
                                     toolbarThemeType="themed"
                                     navItems={
                                         navItems
