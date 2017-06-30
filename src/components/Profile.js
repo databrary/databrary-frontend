@@ -3,17 +3,14 @@
  */
 
 import React, {Component} from "react";
-import Card from "react-md/lib/Cards/Card";
-import CardTitle from "react-md/lib/Cards/CardTitle";
-import CardActions from "react-md/lib/Cards/CardActions";
-import CardText from "react-md/lib/Cards/CardText";
-import Media, {MediaOverlay} from "react-md/lib/Media";
-import Avatar from "react-md/lib/Avatars";
+import { Field, reduxForm } from 'redux-form'
 import Button from "react-md/lib/Buttons";
 import {connect} from "react-redux";
 import {getProfile} from "../api/user";
 import {addSnackToast} from "../redux/actions";
 import {withRouter} from "react-router";
+import styles from '../scss/profile.css';
+
 
 class Profile extends Component {
     constructor(props) {
@@ -30,6 +27,7 @@ class Profile extends Component {
                 function (response) {
                     if (response.status === "ok") {
                         this.setState({...response.user});
+                        console.log(response);
                     } else if (response.status === "error") {
                         this.props.history.goBack();
                     } else {
@@ -42,33 +40,39 @@ class Profile extends Component {
 
     render() {
 
+        let orcid = null;
+        if (this.state.party_orcid) {
+            orcid = <div>
+                       <label htmlFor="orcid">ORCID</label>
+                       <span>{this.state.party_orcid}</span>
+                    </div>
+        } 
+        let affiliation = null;
+        if (this.state.party_affiliation) {
+            affiliation = <div>
+                               <label htmlFor="affiliation">Affiliation</label>
+                               <span>{this.state.party_affiliation}</span>
+                            </div>
+        } 
         return (
-            <Card style={{maxWidth: 600, marginTop: '10%'}} className="md-block-centered">
-                <Media>
-                    <img src={`https://nyu.databrary.org/party/${this.state.party_id}/avatar?size=500`}
-                         alt="presentation"/>
-                    <MediaOverlay>
-                        <CardTitle title={this.state.party_prename + " " + this.state.party_name} subtitle="Wow!">
-                            <Button className="md-cell--right" icon>star_outline</Button>
-                        </CardTitle>
-                    </MediaOverlay>
-                </Media>
-                <CardTitle
-                    avatar={<Avatar src="https://unsplash.it/40/40?random&time=1495035933387" alt="presentation"/>}
-                    title={this.state.party_affiliation ? this.state.party_affiliation : ''}
-                    subtitle={this.state.party_id}
-                />
-                <CardActions expander>
-                    <Button flat label="Action 1"/>
-                    <Button flat label="Action 2"/>
-                </CardActions>
-                <CardText expandable>
-                    adfadfkjhdslkfjg
-                </CardText>
-            </Card>
+            <div className="profile">
+                <div>
+                    <img src={`https://nyu.databrary.org/web/images/avatar.png?size=500`}
+                         alt={this.state.party_prename + " " + this.state.party_name}/>
+                    <h2>{this.state.party_prename + " " + this.state.party_name}</h2>
+                    <Button raised label="Edit Profile" />
+                </div>
+                {orcid}
+                {affiliation}
+                <hr />
+                <a href={"/party/" + this.state.party_id}>Switch to public view</a>
+                <br />
+                <a href={"/party/" + this.state.party_id + "/activity"}>User history</a>
+            </div>
         );
     }
 }
+
 
 const mapStateToProps = (state) => {
     return {

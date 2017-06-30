@@ -82,9 +82,9 @@ class App extends Component {
         const userButton = <UserButton/>;
         //const testSnackbar = <Button raised label="Toast Hello, World" onClick={this._toastHello.bind(this)}/>;
         const logoImage = (
-            <a href="/">
+            <a href="/" className="logo">
                 <img
-                    style={{width: 260, marginTop: 10, marginLeft: -30, marginBottom:10}}
+                    style={{width: 260, marginTop: 5, marginLeft: -30, marginBottom:5}}
                     alt="Databrary"
                     src="https://nyu.databrary.org/web/images/logo/databrary-nav.svg"
                 />

@@ -1,0 +1,22 @@
+.profile {
+	padding: 40px;
+	line-height: 25px;
+	img, h2, button, label, span {
+		display:inline-block;
+		vertical-align: middle;
+		margin-right: 30px;
+	}
+	h2 {
+		font-size: 25px;
+	}
+	img {
+		width: 50px;
+	}
+	div:first-of-type {
+		margin-bottom: 25px;
+	}
+	label, span {
+		width: 100px;
+		font-size: 16px;
+	}
+}

@@ -3,5 +3,31 @@
 @include react-md-everything;
 
 body {
-  margin: 0;
+    margin: 0;
+    line-height: 120%;
+    font-size: 16px;
+}
+#main-content {
+	background-color: #ffffff;
+}
+.logo {
+	@media #{$md-mobile-media} {
+		margin-left: 20px;
+	}
+	@media #{$md-desktop-media} {
+		margin-left: 200px !important;
+	}
+}
+hr {
+	border-width: 0;
+	border-bottom: 1px solid #ccc;
+}
+a {
+	color: #2fa38c;
+	text-decoration: none;
+	font-weight: bold;
+	&:hover, &:active, &:focus {
+		color: #4a8479;
+		text-decoration: underline;
+	}
 }
