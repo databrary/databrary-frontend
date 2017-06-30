@@ -27,7 +27,6 @@ class Profile extends Component {
                 function (response) {
                     if (response.status === "ok") {
                         this.setState({...response.user});
-                        console.log(response);
                     } else if (response.status === "error") {
                         this.props.history.goBack();
                     } else {
