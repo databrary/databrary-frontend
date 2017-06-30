@@ -1,8 +1,14 @@
+@import '../../node_modules/react-md/src/scss/react-md';
+
 /*Variable overrides*/
 $md-list-desktop-font-size: 16;
 
-$md-primary-color: #97d1c5;
-$md-secondary-color: #f7c9ab;
+$md-primary-color: $md-teal-500;
+$md-secondary-color: $md-teal-a-200;
 
-$md-drawer-tablet-width: 120px;
-$md-drawer-desktop-width: 120px;
+$md-font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+
+$md-drawer-mobile-max-width: 140px;
+$md-drawer-desktop-width: 140px;
+
+$md-text-field-custom-sizes: (title: (22px, .25s, 25px, 22px));

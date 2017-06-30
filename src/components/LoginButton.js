@@ -90,7 +90,7 @@ class LoginDialog extends Component {
     render() {
         const {visible, onHide} = this.props;
         return (
-            <Dialog dialogStyle={{width: "30%"}} id="LoginDialog" visible={visible} onHide={onHide}>
+            <Dialog dialogStyle={{width: "382px"}} id="LoginDialog" visible={visible} onHide={onHide}>
                 <ConnectedLoginForm hideForm={onHide}/>
             </Dialog>
         )
@@ -115,7 +115,7 @@ export class LoginButton extends Component {
     render() {
         const {visible} = this.state;
         return (
-            <Button style={{marginLeft: 5, marginRight: 5}} primary raised key="account_circle" label="Log In"
+            <Button style={{marginLeft: 5, marginRight: 5, width: 135}} primary raised key="account_circle" label="Log In"
                     onClick={this._openDialog}>
                 account_circle
                 <LoginDialog visible={visible} onHide={this._closeDialog}/>

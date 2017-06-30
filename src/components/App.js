@@ -19,7 +19,19 @@ const navItems = [{
     loggedIn: false,
 }, {
     primaryText: 'News',
-    to: 'https://www.databrary.org/news.html',
+    leave: 'https://www.databrary.org/news.html',
+    loggedIn: false,
+}, {
+    primaryText: 'About',
+    leave: 'https://www.databrary.org/about.html',
+    loggedIn: false,
+}, {
+    primaryText: 'Access',
+    leave: 'https://www.databrary.org/access.html',
+    loggedIn: false,
+}, {
+    primaryText: 'Community',
+    leave: 'https://www.databrary.org/community.html',
     loggedIn: false,
 }, {
     primaryText: 'Profile',
@@ -70,11 +82,13 @@ class App extends Component {
         const userButton = <UserButton/>;
         //const testSnackbar = <Button raised label="Toast Hello, World" onClick={this._toastHello.bind(this)}/>;
         const logoImage = (
-            <img
-                style={{width:260}}
-                alt="Databrary"
-                src="https://nyu.databrary.org/web/images/logo/databrary-nav.svg"
-            />
+            <a href="/">
+                <img
+                    style={{width: 260, marginTop: 10, marginLeft: -30, marginBottom:10}}
+                    alt="Databrary"
+                    src="https://nyu.databrary.org/web/images/logo/databrary-nav.svg"
+                />
+            </a>
         );
         return (
             <Switch>
@@ -98,7 +112,13 @@ class App extends Component {
                                                     primaryText: props.primaryText,
                                                     leftIcon: props.leftIcon,
                                                     active: this.props.history.location.pathname === props.to,
-                                                    onClick: () => props.to ? this.props.history.push(props.to) : null
+                                                    onClick: () => {
+                                                        if (props.to) {
+                                                            this.props.history.push(props.to)
+                                                        } else if (props.leave) {
+                                                            window.location.href = props.leave
+                                                        }
+                                                    } 
                                                 })
                                             )
                                     }

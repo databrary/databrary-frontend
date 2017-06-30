@@ -133,7 +133,7 @@ class PasswordForm extends React.Component {
             this.state.expired ? this._expired() :
                 submitSucceeded ? this._sentReset() :
                     // i have no idea why if you remove this and stretch the window the form is shrunken
-                    <form style={{minWidth: 217}} onSubmit={handleSubmit(this._handleSubmitReset)}>
+                    <form style={{minWidth: 380}} onSubmit={handleSubmit(this._handleSubmitReset)}>
                         <Field name="password" type="password" onchange={this._onChange} component={FormTextField}
                                customSize="title" size={10} label="Password" required/>
                         <Field name="confirmPassword" type="password" component={FormTextField} label="Confirm Password"

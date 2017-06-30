@@ -37,6 +37,7 @@ class LoggedInButton extends PureComponent {
                 icon key="account_circle" className={this.props.className}
                 id="loggedin-menu"
                 buttonChildren="account_circle"
+                style={{width: 138}}
             >
                 <ListItem onClick={this._profile} primaryText="My Account"/>
                 <ListItem onClick={this._logOut} primaryText="Logout"/>
