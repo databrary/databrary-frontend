@@ -6,7 +6,7 @@ import React, {Component} from "react";
 import { Field, reduxForm } from 'redux-form'
 import Button from "react-md/lib/Buttons";
 import {connect} from "react-redux";
-import {getProfile} from "../api/user";
+import {getProfile, editProfile} from "../api/user";
 import {addSnackToast} from "../redux/actions";
 import {withRouter} from "react-router";
 import styles from '../scss/profile.css';
@@ -18,7 +18,29 @@ class Profile extends Component {
         this.state = {
             party_name: "",
             party_prename: "",
+            value: ""
         }
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChange(event) {
+        this.setState({value: event.target.value});
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+
+        editProfile(this.state.value).then(
+            function (response) {
+                if (response.status === "ok") {
+                    alert('yes');
+                } else if (response.status === "error") {
+                    this.setState({error: 'Could not edit profile.'})
+                } else {
+                    throw new Error(`Unexpected response edit profile in ${this.__proto__.constructor.name}`)
+                }
+            }.bind(this));
     }
 
     componentWillMount() {
@@ -67,6 +89,15 @@ class Profile extends Component {
                 <a href={"/party/" + this.state.party_id}>Switch to public view</a>
                 <br />
                 <a href={"/party/" + this.state.party_id + "/activity"}>User history</a>
+                <form onSubmit={this.handleSubmit}>
+                    <div>
+                        <label>
+                           First Name:
+                        </label>
+                        <input type='text' name="firstName" placeholder={this.state.party_prename} value={this.state.value} onChange={this.handleChange} required/>
+                    </div>
+                    <Button raised label="Submit" value="submit" type="submit"/>
+                  </form>
             </div>
         );
     }

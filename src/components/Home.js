@@ -15,7 +15,7 @@ export default class Home extends Component {
                         Databrary is a video data library for developmental science.<br />
                         Share videos, audio files, and related metadata. Discover more, faster.
                     </p>
-                    <LoginForm />
+                    {/*<LoginForm />*/}
                 </div>
                 <Card style={{maxWidth: 600}} className="md-block-centered">
                     <a href="https://nyu.databrary.org/volume/9">

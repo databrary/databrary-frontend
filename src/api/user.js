@@ -34,6 +34,20 @@ function getProfile() {
     );
 }
 
+function editProfile(account) {
+    return axios.patch(
+        `${config.domain}/profile`,
+        account
+    ).then(
+        response => ({status: 'ok'})
+    ).catch(
+        function (error) {
+            makeErrorSnack(error, "couldn't update profile. Please Try again.");
+            return {status: 'error'}
+        }
+    );
+}
+
 function logIn(email, password, rememberMe) {
     return axios.post(
         `${config.domain}/api/user/login`,
@@ -102,4 +116,4 @@ function register(account) {
 }
 
 
-export {register, userExists, getProfile, logIn, logOut, loggedIn}
+export {register, userExists, getProfile, editProfile, logIn, logOut, loggedIn}
