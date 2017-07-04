@@ -28,7 +28,7 @@ class Profile extends Component {
                     if (response.status === "ok") {
                         this.setState({...response.user});
                     } else if (response.status === "error") {
-                        this.props.history.goBack();
+                        this.props.history.push("/");
                     } else {
                         throw new Error(`Unexpected response profile in ${this.__proto__.constructor.name}`)
                     }
