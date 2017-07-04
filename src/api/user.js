@@ -37,7 +37,8 @@ function getProfile() {
 function editProfile(account) {
     return axios.patch(
         `${config.domain}/api/user/profile`,
-        account
+        account,
+        {withCredentials: true}
     ).then(
         response => ({status: 'ok'})
     ).catch(
