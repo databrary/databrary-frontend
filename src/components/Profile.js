@@ -85,6 +85,10 @@ class Profile extends Component {
                 </div>
                 {orcid}
                 {affiliation}
+                <div>
+                   <label htmlFor="email">Email</label>
+                   <span>{this.state.party_email}</span>
+                </div>
                 <hr />
                 <a href={"/party/" + this.state.party_id}>Switch to public view</a>
                 <br />
