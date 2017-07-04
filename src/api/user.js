@@ -22,7 +22,7 @@ function userExists(email) {
 
 function getProfile() {
     return axios.get(
-        `${config.domain}/profile`,
+        `${config.domain}/api/user/profile`,
         {withCredentials: true}
     ).then(
         response => ({status: 'ok', user: response.data.data})
