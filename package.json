@@ -31,7 +31,8 @@
   },
   "devDependencies": {
     "eslint-plugin-react": "^7.0.0",
-    "react-scripts": "1.0.0"
+    "react-scripts": "1.0.0",
+    "riek": "^1.1.0"
   },
   "scripts": {
     "build-css": "node-sass src/scss -o src/scss",
