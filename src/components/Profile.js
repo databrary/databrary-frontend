@@ -16,8 +16,6 @@ class Profile extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            lastName: "",
-            firstName: "",
             show: false
         }
         this.toggle = this.toggle.bind(this);
@@ -122,7 +120,7 @@ class Profile extends Component {
                             <label>
                                Email
                             </label>
-                            <input type='text' name="email" placeholder={this.state.email} onChange={this.handleChange}/>
+                            <span>{this.state.email}</span>
                         </div>
                     </form>
                     <hr />

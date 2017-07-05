@@ -1,10 +1,10 @@
 import React, {Component} from "react";
 import "../scss/home.css";
 import config from "../config";
-import {LoginForm} from "./LoginButton"
 import Card from "react-md/lib/Cards/Card";
 import CardTitle from "react-md/lib/Cards/CardTitle";
 import CardText from "react-md/lib/Cards/CardText";
+import {Stats} from "./Stats";
 
 export default class Home extends Component {
     render() {
@@ -15,9 +15,9 @@ export default class Home extends Component {
                         Databrary is a video data library for developmental science.<br />
                         Share videos, audio files, and related metadata. Discover more, faster.
                     </p>
-                    {/*<LoginForm />*/}
+                    <Stats />
                 </div>
-                <Card style={{maxWidth: 600}} className="md-block-centered">
+                <Card className="md-block-centered home-panel">
                     <a href="https://nyu.databrary.org/volume/9">
                         <img src="https://nyu.databrary.org/volume/9/thumb?size" href="https://nyu.databrary.org/volume/9" style={{maxWidth: 600}}/>
                     </a>

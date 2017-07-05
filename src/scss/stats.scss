@@ -1,0 +1,20 @@
+.stats {
+	text-align:center;
+	span {
+		font-weight: bold;
+		&:nth-of-type(2n) {
+			margin-right: 20px;
+		}
+		&:nth-of-type(2n+1) {
+			margin-right: 5px;
+		}
+	}
+	.stats-number {
+	    color: #f7c9ab;
+	    font-size: 24px;
+	}
+	.stats-text {
+		color: #5caabc;
+		font-size: 14px;
+	}
+}

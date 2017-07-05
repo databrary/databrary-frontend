@@ -1,3 +1,4 @@
+//let addr = "172.22.236.138";
 let addr = "localhost";
 
 let domainPort = "3444";
