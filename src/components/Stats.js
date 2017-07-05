@@ -24,7 +24,7 @@ export class Stats extends Component {
         getStats().then(
             function (response) {
                 if (response.status === "ok") {
-                    this.setState({investigators: response.user.authorized[3].total, affiliates: response.user.authorized[2].total, files: response.user.asset.total, hours: numberWithCommas(response.user.asset.sum_duration)});
+                    this.setState({investigators: response.user.authorized[3].total, affiliates: response.user.authorized[2].total, files: numberWithCommas(response.user.asset.total), hours: numberWithCommas(response.user.asset.sum_duration)});
                 } 
             }.bind(this)
         )
