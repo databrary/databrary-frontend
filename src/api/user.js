@@ -89,7 +89,7 @@ function loggedIn() {
         `${config.domain}/api/loggedin`,
         {withCredentials: true}
     ).then(
-        response => response.data.data.logged_in
+        response => response.data.data.loggedIn
     ).catch(
         function (error) {
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
